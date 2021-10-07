@@ -143,7 +143,6 @@
 
 % \newcommand*{\contribution}[1]{\hspace{0.5em}\hyperref[#1]{$\blacktriangleright$}}
 \usepackage{pifont}
-
 \newcommand\contribution[1]{\hspace{0.5em}\hyperref[#1]{\ding{81}}}
 
 % START Paper Counter
@@ -313,19 +312,26 @@ Thanks to \todo{\dots}
     % - We see en immediate connection between generative models and counterfactuals and explore how to generate and evaluate counterfactual explanations from the perspective of generative models.
 
 \chapter{Efficient Neural Network Training}\label{chap:nns}
-Efficiently training neural networks pose a significant challenge within the field of machine learing, as neural networks are costly to train and can be found solving a variety of problems from classifying malignant tumors~\cite{cancer} to generating realistic ``fake'' data~\cite{gpt-3}. 
+Neural networks can be found solving a variety of problems from classifying malignant breast tumors~\cite{cancer} to generating ``fake'' molecular compounds~\cite{chem-gan}. 
+However, such remarkable performances come at a high computational cost.
+For example, up to 512 highly specialized and very costly Tensor Processing Units were used to train a single model for up to 48 hours \cite{biggan}. 
+Furthermore, there is trend showing that larger models (more parameters) perform better~\cite{language-models-few-shot, scaling-matters}.
+In turn, improving algorithms to allow even larger models to be trained within the same computational budget can have huge impacts in terms of better performance.
+Finally, we have a strong belief that as a consequence of improved performances of especially generative models, better methods within explainability will also emerge further down-stream.
+
 In this chapter, we present two papers which revolves around more efficient computations of central components for neural networks.
-Speeding up computations potentially improves performance of the models on performance metrics like likelihood and accuracy to consequently improve explainability further downstream.
 The first paper, \paperref{pap:svd}, is introduced in Section \ref{sec:svd} and was published at NeurIPS 2020 as a spotlight paper.
 It introduces a fast algorithm for computing Householder products, which can be used to efficiently representing neural network weights in their Singular Value Decomposition (SVD) during training.
 The second paper, \paperref{pap:fastfid}, is a manuscript and is presented in Section \ref{sec:fid}. 
 It presents a new algorithm for computing the Fr\'echet Inception Distance (FID) fast for small batches.
-With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was expensive to do in terms of amounts of compute.
+With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible to do because of too costly computations. 
+Finally, we devote Section \ref{sec:nn-discussion} to discussing the high-level impacts of the two papers. 
 % Prior to this paper, the FID was an ill fit for a training loss due to high amounts of computation.
 
 \section{What if Neural Networks had SVDs?\contribution{pap:svd}} \label{sec:svd}
 % +++ 1 page on motivating the problem, e.g., with a couple of examples of where it makes sense.
-In this section, we first give a brief introduction to the high-level contributions of our paper, before putting it into context of related work. Successively, additional details about our algorithm are covered, and successively we present applications of the algorithm. 
+In this section, we first give a brief introduction to the problem thar our algorithm solves and the high-level contributions of our paper, before putting it into context of related work. Successively, we present applications for which our algorithm improves computational efficiency.
+At the end of this section, we also give more details on the details of our algorithm.
 % TODO Make sure introduction is right.
 
 % 1. Present at a high level what FastH does. Not the technical part but just the result.
@@ -335,7 +341,7 @@ As such, finding a way to decrease such computation times will allow using large
 
 One way to decrease computation time is to represent weights $W$ in their SVD, $W = U\Sigma V^\intercal$ where $U, V \in \mathbb{R}^{d\times d}$ are orthogonal, \ie, $U^{-1} = U^\intercal$ and $V^{-1}= V^\intercal$, and $\Sigma\in \mathbb{R}^{d\times d}$ is a diagonal matrix. 
 In such decomposition, computing the determinant of $W$ takes just $O(d)$ time, $det(W) = det(U\Sigma V^\intercal) = det(\Sigma) = \prod_{i=1}^d \Sigma_{i,i}$.
-It is, however, not straight forward how to optimize $U$ and $V$ in such representation.
+It is, however, not straight forward to optimize $U$ and $V$ in such representation.
 An immediate issue is that doing gradient updates on $U$ and $V$ will generally not keep the matrices orthogonal.
 To circumvent this issue, \citet{sequential} propose to parameterize each orthogonal matrix as a composition of $d$ Householder matrices $H_i$ that are represented by one $d$-dimensional vector $v_i$ each:
 \begin{equation}\label{eq:hh-decomposition}
@@ -345,32 +351,32 @@ In Equation \ref{eq:hh-decomposition}, each $H_i$ is orthogonal, which makes $V$
 The parameterization makes gradient descent posible by preserving the orthogonality of $U$ and $V$ during optimizations, while the matrix product $WX = U \Sigma V^\intercal X$ can be evaluated in $O(d^2m)$ for a matrix $X\in\mathbb{R}^{d\times m}$, similar to regular matrix multiplication. 
 There is, however, a catch.
 The decomposition is inherently sequential. 
-That is, to evaluate $WX$, one must compute $2d$ sequential matrix-vector operations.
+That is, to evaluate $WX$, one must compute $O(d)$ sequential matrix-vector operations.\footnote{We distinguish matrix-vector and matrix-matrix operations because GPUs are highly parallel and much more efficient on matrix-matrix operations. Matrix-matrix operations are thus preferred.}
 Specifically, for both $U$ and $V$, $H_1(H_2(...(H_dX) ...))$ needs to be computed sequentially, as indicated by the parenthesis.
 As most machine learning models today are trained on highly parallel hardware like GPUs, sequential algorithms are typically slow, as compared to parallel algorithms.
 
 \citet{sequential} notice that the sequential algorithm is slow. 
-As a consequence, they suggest an additional algorithm based on matrix-matrix products, which is more parallel. 
+As a consequence, they suggest an additional algorithm based on matrix-matrix products, which is more parallel and thus a better fit for GPUs. 
 The algorithm first constructs the orthogonal matrices $U$ and $V$ by multiplying together $H_1, ..., H_d$, before evaluating $WX = U\Sigma V^\intercal X$.
 Without any further utilization of the Householder structure in Equation \eqref{eq:hh-decomposition}, such algorighm takes $O(d^3)$.
-Even if the Householder matrices are paired to compute $P_j = H_{j*2,j*2+1}$ for $j=1, ..., d/2$ in parallel to form $d/2$ orthogonal $d\times d$ matrices in $O(d^2)$ time due to Equation \eqref{eq:hh-decomposition}, the asymptotic running time of multiplying the $P_j$s is $O(d^3)$, which is no faster than computing the SVD in the first place.
+Even if the Householder matrices are paired to compute $P_j = H_{j*2}H_{j*2+1}$ for $j=1, ..., d/2$ in parallel to form $d/2$ orthogonal $d\times d$ matrices in $O(d^2)$ time due to Equation \eqref{eq:hh-decomposition}, the asymptotic running time of multiplying the $P_j$s is $O(d^3)$, which is no faster than computing the SVD in the first place.
 % multiplies the Householder matrices together first, which is more parallel, but takes $O(d^3)$ time, as fast as computing the $SVD$ in the first place, because at least $d/2$ $d\times d$ matrices must be multiplied together.
 Due to increased parallelization, the algorithm is faster than the sequential in practice, even though it is less efficient asymptotically.
 
-\paragraph{Contributions.} In \paperref{pap:svd}, we introduce a hybrid algorithm FastH, which computes the exact same Householder product and obtains the fast asymptotic running time $O(d^2m)$, while requiring only $O(t + d/t)$ sequential matrix-matrix operations for an adjustable group size $t$, as compared to $O(d)$ sequential matrix-vector computations used by the sequential algorithm.
-In practice, we find that FastH is 27 times faster than the sequential algorithm and six times faster than the parallel. 
+\paragraph{Contributions.} In \paperref{pap:svd}, we introduce a GPU friendly algorithm FastH, which computes the exact same Householder product and obtains the fast asymptotic running time $O(d^2m)$, while requiring only $O(t + d/t)$ sequential matrix-matrix operations for an adjustable group size $t$, as compared to $O(d)$ sequential matrix-vector computations used by the sequential algorithm.
+In practice, we find that FastH is up to 27 times faster than the sequential algorithm and six times faster than the parallel. 
 Before presenting the details of the FastH algorithm in Section \ref{sec:fasth}, we cover some applications of representing weight matrices in their SVD and related work.
 
 \subsection{Applications.}
 Besides determinant computations, which we have already mentioned, we describe three additional applications for which parameterizing weight matrices in their SVD has advantages in terms of computational speed-ups.
 
-The first examples is inverse computations. 
+The first example is inverse computations. 
 Inverting a $d\times d$ matrix generally takes $O(d^3)$ time.
-With the SVD, we can compute the matrix inverse as follows:
+With the SVD parametrization, we can compute the matrix inverse as follows:
 \begin{equation}\label{eq:svd-inverse}
     W^{-1} = (U\Sigma V^\intercal)^{-1} = (V^\intercal)^{-1}\Sigma^{-1}U^{-1} = V \Sigma^{-1} U^\intercal.
 \end{equation}
-From Equation \eqref{eq:svd-inverse}, we see that it transposing $U$ and $V$, and inverting the diagonal matrix $\Sigma$ is enough.
+From Equation \eqref{eq:svd-inverse}, we see that transposing $U$ and $V$, and inverting the diagonal matrix $\Sigma$ is enough.
 In the Householder representation shown in Equation \eqref{eq:hh-decomposition}, multiplying with the transpose of $U$ or $V$ simply corresponds to reversing the order of the householder matrices.
 In turn, it takes $O(1)$ time to do the transpose operation, as nothing needs to be done. 
 Inverting a diagonal matrix takes $O(d)$ time. 
@@ -397,31 +403,30 @@ At an intermediate level, orthogonal matrices have also been employed in neural 
 Finally, at the lowest level, various methods for enabling optimization of orthogonal matrices also exist.
 
 As is well known, the SVD is closely tied to the dimensionality reduction method Principal Component Analysis, as the columns of $U\Sigma$ are the principal components of a data matrix $X = U \Sigma V^\intercal$.
-After training a neural network, a natural way to compress a neural network to get a ``low rank approximation'' is thus to use only some principal components of each weight matrix.
-To circumvent training large networks before compressing them, the idea has been extended in multiple ways.
+After training a neural network, a natural way to compress the network to get a faster ``low rank approximation'' is thus to use only some principal components of each weight matrix.
+To circumvent training large networks before compressing them, this idea has been extended in multiple ways.
 For example, \citet{training-svd-regularized} propose to optimize weights of both dense layers and (reshaped) convolutional layers in their SVD by regularizing $U$ and $V$ to be approximately orthogonal through loss terms like $\|UU^\intercal-I\|_F^2$.
-\citet{convolution-tensor-decomposition} also propose a multi-linear tensor decomposition of convolutional filters to achieve efficient low-rank convolutional kernels.
+\citet{convolution-tensor-decomposition} also propose a multi-linear tensor decomposition of convolutional filters to achieve efficient low-rank convolutional kernels that can be trained in an end-to-end fashion.
 
 % Tensor decompositions / SVD / PCA.
 % - \cite{training-svd-regularized} strin in the SVD with \|UU^T - I\|_F^2 regularization.
 % - Alekos work on end-to-end learnable tensor decompositions \cite{convolution-tensor-decomposition} trains low rank multilinear convolutions. 
 An area of research where orthogonal matrices are of high importance and often utilized is within the field of recurrent neural networks (RNN).
 Given a long sequence of samples $x_1, ..., x_t\in\mathbb{R}^{m}$, recurrent neural networks are applied over and over again along the sequence of samples with the output from the previous sample as a part of the input, \ie, $f(x_t, ...f(x2, f(x_1, 0)) ... )$ where $f$ has the structure $f(x, z) = \sigma( Vx + Wz) )$ with $V\in \mathbb{d\times m}$, $W\in\mathbb{R}^{d\times d}$, and $\sigma$ being some point-wise non-linearity~\cite{urnn}.
-For such computations, gradient computations become very ``long,'' which can result in vanishing or exploding gradients if $W$ and $\sigma$ is not norm preserving.
-Orhogonal matrices are norm preserving, \ie, $\|Wx\|_2 = \|x\|_2$ for orthogonal matrix $W$, and constitute central building blocks for avoiding exploding (vanishing) gradients.
+For such computations, gradient computations become very ``long,'' which can result in vanishing or exploding gradients if $W$ and $\sigma$ are not norm preserving.
+Orthogonal matrices are norm preserving, \ie, $\|Ux\|_2 = \|x\|_2$, and constitute central building blocks for avoiding exploding (or vanishing) gradients.
 To the best of our knowledge, \citet{urnn} were the first to parameterize orthogonal matrices for RNNs through a product of cleverly chosen low memory footprint and efficient complex unitary matrices, such that $Wx_i$ can be evaluated in $O(d \log d)$ time.
 However, the resulting orthogonal matrices are still limited in what they can express. 
 Informally, this is due to a limited $O(d)$ free parameters of the complex matrices.
 Successively, \citet{hh-rnn} proposed to instead parametrize the orthogonal matrix with $O(d)$ Householder matrices to parametrize the $W$s in RNNs with $O(d^2)$ parameters. 
 \citet{sequential} further utilize a Householder parametrization to form an SVD of $W$ where the singular values are restricted to be close to one, \ie, $\Sigma_{i,i} \in [1\pm\varepsilon]$ for $\varepsilon > 0$. 
-As described, \cite{seguential} presents both a sequential and a parallel algorithm for evaluating the Householder parametrization.
-For an input $X\in\mathbb{R}^{d\times m}$, evaluating $WX$ has an $O(d^2m)$ time complexity, but is slow in practice, while the parallel algorithm is faster in practice, but has an $O(d^3)$ time complexity. 
+As described, \cite{sequential} presents both a sequential and a parallel algorithm for evaluating the Householder parametrization.
+For an input $X\in\mathbb{R}^{d\times m}$, evaluating $WX$ sequentially has an $O(d^2m)$ time complexity, but is slow in practice, while the parallel algorithm is faster in practice, but has an $O(d^3)$ time complexity. 
 With FashH, we present a new algorithm, which shares the $O(d^2m)$ time complexity, while being up to six times faster than the parallel algorithm.
-It should also be mentioned that concurrent with \paperref{pap:svd}, \citet{cwy-dec} also notice the gap between the sequential and parallel algorithm and present another parallel algorithm for evaluating Householder products using a related CWY decomposition.
-The algorithm has similar time complexities to FastH
+It should also be mentioned that concurrent with \paperref{pap:svd}, \citet{cwy-dec} also notice the gap between the sequential and parallel algorithm and present another parallel algorithm for evaluating Householder products using a related CWY decomposition, which relies on matrix inversion that takes $O(d^3)$ time.
 
 Another area, where orthogonal matrices are employed, is for Normalizing Flows where, \eg, determinant computations of weight matrices can be needed~\cite{glow}.
-As a way for parametrizing square matrices such that their determinants can be computed efficiently, \citet{emerging} propose to utilize the QR decomposition $W = QR$, where $Q\in\mathbb{R}^{d\times d}$ is an orthogonal matrix parametrized by the Householder decomposition described in Equation \eqref{eq:hh-decomposition} and $R\in\mathbb{R}^{d\times d}$ is a triangular matrix.
+As a way of parametrizing square matrices such that their determinants can be computed efficiently, \citet{emerging} propose to utilize the QR decomposition $W = QR$, where $Q\in\mathbb{R}^{d\times d}$ is an orthogonal matrix parametrized by the Householder decomposition described in Equation \eqref{eq:hh-decomposition} and $R\in\mathbb{R}^{d\times d}$ is a triangular matrix.
 In such decomposition, the determinant computation has $O(d)$ time complexity because $det(W) = det(Q) \cdot det(R) =1 \cdot  \prod_{i=1}^d R_{i,i}$. 
 In \cite{emerging}, they employ a sequential algorithm for the householder decomposition and could gain a practical speedup by using FastH. 
 
@@ -432,10 +437,10 @@ As a consequence, such exponentials are typically used in RNNs where the input s
 For such situations, computing the matrix exponentials becomes asymtotically faster than evaluating the RNN on the whole sequence, \ie, $O(d^3) < O(d^2s)$ when $d \ll s$.
 
 \subsection{FastH}\label{sec:fasth}
-From the observation observation that there is a gap between the slow (in practice) $O(d^2m)$ sequential algorithm and the faster parallel $O(d^3)$ algorithm from \cite{sequential}, we raised the following question.
+From the observation that there is a gap between the slow (in practice) $O(d^2m)$ sequential algorithm and the faster parallel $O(d^3)$ algorithm from \cite{sequential}, we raised the following question.
 
 \begin{problem}
-    Given $X\in \mathbb{R}^{d\times m}$ and $v_1, ..., v_d \in \mathbb{R}^{d}$, can we evaluate $\left[ \prod_{i=1}^d I-2\frac{v_iv_i^\intercal}{\|v_i\|_2^2}\right]X = \left[\prod_{i=1}^d H_i\right]X$ with less than $O(d)$ matrix-matrix operations?
+    Given $X\in \mathbb{R}^{d\times m}$ and $v_1, ..., v_d \in \mathbb{R}^{d}$, can we evaluate $\left[ \prod_{i=1}^d I-2\frac{v_iv_i^\intercal}{\|v_i\|_2^2}\right]X = \left[\prod_{i=1}^d H_i\right]X$ in $O(d^2m)$ time with less than $O(d)$ sequential matrix-matrix operations?
 \end{problem}
 
 The short answer i ``yes,'' FastH computes the Householder product in $O(d^2m)$ time while using $O(d/t) + t$ sequential operations, where $t$ is an intermediate result size, as presented next.
@@ -464,7 +469,7 @@ FastH computes the Householder product $H_1H_2...H_dX$ through two steps.
     \end{matrix}.
 \end{equation}
 % \paragraph{Step 2.}
-\item[Step 2:] From the decompositions, $G1(G2(...(G_{d/t}X)...))$ is computed sequentially by multiplying $X$ on each decomposition from right to left, \ie, $I-W_j(Y_j^\intercal X)$.
+\item[Step 2:] From the decompositions, $G1(G2(...(G_{d/t}X)...))$ is computed sequentially by multiplying $X$ on each decomposition from right to left, as indicated by the parenthesis.
 \end{description}
 
 With Lemma \ref{lem:wydec} at hand, we analyze the time complexity of FastH.
@@ -495,17 +500,22 @@ Perhaps the most established way of evaluating generative models for images acro
 The FID is proposed as a way of approximating how distant two distributions are, given samples from the two distributions. 
 In this context, the two distributions are the \emph{real} data distribution $p(x)$ and the distribution of the \emph{fake} data $q(x)$ from the generative model.
 As the generative model tries to approximate the sampling process of $p(x)$, a lower FID is better.
+We hypothesize that explicitly minimizing FID as a loss will also yield a better validation FID.
+The purpose of \paperref{pap:fastfid} is to test this hypothesis.
+As we will show, computing FID at every training step is computationally too heavy.
+With our new algorithm FastFID, we show how to compute the FID fast enough for it to be used as a loss function. 
+But first, we define the FID below.
 
-To compute the FID, on first draws real samples $r_1, r_2, ..., r_n \sim p(x)$ and fake samples $f_1, f_2, ..., f_m\sim q(x)$.
+To compute the FID, on first draws $n$ real samples $r_1, r_2, ..., r_n \sim p(x)$ and $m$ fake samples $f_1, f_2, ..., f_m\sim q(x)$.
 Successively, all $r_i$ and $f_i$ are encoded by computing the activations of the final hidden layer of the pretrained Inception-V3 network~\cite{inceptionv3}, $A(r_i)$, $A(f_i)$.
-Two multivariate normal distributions $\mathcal{N}(\mu_r, \Sigma_r)$, $\mathcal{N}(\mu_f, \Sigma_f)$ are then formed from the statistics encodings.
+Two multivariate normal distributions are then formed from the statistics of the encodings, $\mathcal{N}(\mu_r, \Sigma_r)$, $\mathcal{N}(\mu_f, \Sigma_f)$.
 Finally, the FID is the Fr\'echet distance (also known as the Wasserstein-2 distance) between the two normal distributions:
 \begin{equation}\label{eq:fid}
     \operatorname{FID}(\mu_r, \Sigma_r, \mu_f, \Sigma_f) = \| \mu_r - \mu_f \|_2^2 + tr(\Sigma_r + \Sigma_f) - 2\cdot tr(\sqrt{\Sigma_r \Sigma_f}).
 \end{equation}
-\citet{fid} demonstrate how the FID correlate well with both human judgement and increasing disturbance, \eg, adding increasing levels of noise. 
+\citet{fid} demonstrate how the FID correlate well with both human judgement and increasing disturbance, \eg, by adding increasing levels of noise. 
 
-When computing the FID, only $\mu_f$ and $\Sigma_f$ changes between generative models.
+When computing the FID, only $\mu_f$ and $\Sigma_f$ changes across different generative models.
 As such, much computation can be cut by computing encodings $A(r_i)$ and successively $\mu_r, \Sigma_r$ just once.
 In fact, \citet{fid} even share precomputed statistics for five popular datasets.\footnote{\url{https://github.com/bioinf-jku/TTUR}}
 But even then, the computational complexity of the FID is $O(d^3 + d^2m)$, where the first term stems from the matrix square root $\sqrt{\Sigma_r\Sigma_f}$ and the second term comes from computing $\Sigma_f$ from the encodings.
@@ -518,8 +528,8 @@ This hypothesis raises an intriguing question.
 Is it possible to compute the FID fast enough for it to be used as a training loss?
 
 \paragraph{Contributions.} 
-In \paperref{pap:fastfid}, we introduce FastFID; an algorithm which computes the FID on mini-batches ($m \ll d$) in $O(d^2m + m^3)$ time, up to three orders of magnitudes faster and with at least three orders of magnitude less numerical error than the original implementation of FID.
-We demonstrate how the algorithm is fast enough to be used for explicitly training GANs with FID as a loss function, resulting in better validation FID scores of generated samples. 
+In \paperref{pap:fastfid}, we introduce FastFID; an algorithm which computes the FID on mini-batches (few fake samples, $m \ll d$) in $O(d^2m + m^3)$ time, up to three orders of magnitudes faster and with at least three orders of magnitude less numerical error than the original implementation of FID.
+We demonstrate how the algorithm is fast enough to be used for explicitly training GANs with FID as a loss function, resulting in better validation FID. 
 We further establish evidence that using the FID as a loss function yields fake samples of higher quality. 
 For example, generated fake images of a dog get new semantic features like eyes and ears. 
 
@@ -537,12 +547,12 @@ Finally, \citet{fid-approx} propose an algorithm for approximating the matrix sq
 % As a consequence, we can compute the quantity for even less samples without this issue occuring.
 
 \subsection{Fast Fr\'echet Inception Distance} 
-To describe how FastFID works, we first highlight how the previous algorithm computes the FID, before describing FastFID in details.
+To describe how FastFID works, we first highlight how the previous algorithm from \cite{fid} computes the FID, before describing FastFID in details.
 
 \paragraph{The previous algorithm.} As described above, there are two bottlenecks in FID computations, computing the encodings and computing the trace of the matrix square root.
-As mentioned, the first bottleneck can be circumvented by precomputing statistics for the real samples.
+The first bottleneck can be circumvented by precomputing statistics for the real samples.
 Furthermore, in a training scenario, we would only need to compute encodings for $m \ll d$ fake mini-batch samples, which jointly cuts the overall computational complexity of computing statistics from $O(d^2(m+n))$ to $O(d^2m)$.
-As an example, if we use precomputed statistics and reduce $m$ from $10 000$ to $128$, this reduces computation time from roughly $10s$ so $0.1s$ on our machine.
+As an example, if we use precomputed statistics and reduce $m$ from $10 000$ to $128$, this reduces the time it takes to encode samples from roughly $10s$ to $0.1s$ on our machine.
 This is a known improvement which was already done by~\cite{fid}.
 
 In \paperref{pap:fastfid}, we contribute with a large speed up for the second bottleneck.
@@ -567,7 +577,8 @@ Consider the following lemma.
 \begin{lemma}\label{lem:product-eig}
     For two matrices $A, B$, the eigenvalues of $AB$ and $BA$ are the same if the two products are both square matrices~\cite{low-rank-eigenvalue-problem}.
 \end{lemma}
-To compute the trace of the matrix square root faster, we utilize both Lemma \ref{lem:trase-eigenvalues} and Lemma \ref{lem:product-eig} to construct a matrix $M\in \mathbb{R}^{m\times m}$, for which is much smaller than $\Sigma_r\Sigma_f$ for which the eigenvalues and thus the trace is much faster to compute.
+To compute the trace of the matrix square root faster, we utilize both Lemma \ref{lem:trase-eigenvalues} and Lemma \ref{lem:product-eig} to construct a matrix $M\in \mathbb{R}^{m\times m}$ which is much smaller than $\Sigma_r\Sigma_f$. 
+In turn, the eigenvalues and thus the trace is faster to compute.
 Specifically, for a mini-batch, \eg, with $m=128$ samples, computing the eigenvalues of a $m\times m$ matrix in $O(m^3)$ time is much faster than computing the Schur decomposition above in $O(d^3)$ time, as $d$ is typically $2048$.
 Below, we describe the detalis of our algorithm. 
 
@@ -600,7 +611,7 @@ However, computing the eigenvalues of $\Sigma_r\Sigma_f$ still takes $O(d^3)$ ti
 Due to Lemma \ref{lem:product-eig}, we can compute the eigenvalues of the $m\times m$ matrix $C_f^\intercal C_rC_r^\intercal C_f$ in $O(m^3)$ time instead of the $d\times d$ matrix $C_rC_r^\intercal C_fC_f^\intercal$.
 Specifically, FastFID computes the trace of the matrix square root in $O(m^3 + d^2m)$ time by avoiding constructing $\Sigma_r\Sigma_f$ explicitly:
 \begin{equation}\label{eq:fastfid}
-   tr( \sqrt{\Sigma_r\Sigma_f}) = \sum_{i=1}^{d}\sqrt{\lambda_i(C_rC_r^\intercal C_fC_f^\intercal)} = \sum_{i=1}^m \sqrt{\lambda_i(C_f^\intercal C_rC_r^\intercal C_f)}
+   tr( \sqrt{\Sigma_r\Sigma_f}) = \sum_{i=1}^{d-1}\sqrt{\lambda_i(C_rC_r^\intercal C_fC_f^\intercal)} = \sum_{i=1}^{m-1} \sqrt{\lambda_i(C_f^\intercal C_rC_r^\intercal C_f)}
 \end{equation}
 Note that the $d^2m$-term in the time complexity stems from computing $(C_f^\intercal C_r)(C_r^\intercal C_f)$.
 
@@ -608,25 +619,28 @@ We note that for simplicity, some details have been hidden in this description.
 For example, in \paperref{pap:fastfid}, we compare numerical errors between the previous algorithm and FastFID.
 As a consequence, we need the two algorithms to compute exactly the same quantity.
 The matrix square root is not unique, so we need to apply the absolute value $|\sqrt{\lambda_i(C_f^\intercal C_rC_r^\intercal C_f)}|$ in Equation \eqref{eq:fastfid} to comply with \verb^scipy.linalg.sqrtm^.
-Furthermore, there exist similar metrics based on different ``encoders'' ~\cite{fcd} for which FastFID also applies. 
+Furthermore, the FID can also be extended to other types of data than images.
+For example, the same metric has also been applied to chemicals~\cite{fcd} by encoding data with another neural network.
+FastFID also extends to such applications.
 
- Apart from the theoretical contributions described here, we perform multiple experiments.
- Naturally, we test how fast FastFID is in practice.
- We find that for sufficiently small mini-batches (small $m$), FastFID can be up to three orders of magnitudes faster than the previous algorithm.
- We also demonstrate that FastFID is fast enough to use FID as a training loss.
- Across three different GANs on three different datasets of increasing complexity, we demonstrate that adding FID as an additional loss term improves the validation FID.
- Finally, we attempt to answer determine whether using FID as a loss function yields better images.
- From our experiments, we find that fine-tuning a generator of a pre-trained GAN, solely using the FID as a loss, yields images with more semantic features like beaks, ears and eyes.
- As such, we conclude that using FID as a loss function has great potentials in terms of improving the quality of generative models.
+Apart from the theoretical contributions described here, we perform multiple experiments.
+Naturally, we test how fast FastFID is in practice.
+We find that for sufficiently small mini-batches (small $m$), FastFID can be up to three orders of magnitudes faster than the previous algorithm.
+We also demonstrate that FastFID is fast enough to use FID as a training loss.
+Across three different GANs on three different datasets of increasing complexity, we demonstrate that adding FID as an additional loss term improves the validation FID.
+Finally, we attempt to determine whether using FID as a loss function yields better images.
+From our experiments, we find that fine-tuning a generator of a pre-trained GAN, solely using the FID as a loss, yields images with more semantic features like beaks, ears and eyes.
+As such, we conclude that using FID as a loss function has great potentials in terms of improving the quality of generative models.
  
  
-\section{Discussion}
+\section{Discussion}\label{sec:nn-discussion}
 % In the two papers, we introduce algorithms to speed up and improve training of neural networks.
 % We believe that such improvements can have positive impacts further down stream, when considering explainability, as they can both be used to improve generative models.
 
 With the FastH algorithm in \paperref{pap:svd}, we have introduced an algorithm which can be plugged directly into essential layers of Normalizing Flows to improve efficiency.
 Consequently, using FastH enables researchers to train larger models within the same time budges.
 FastH can also be used in GANs, where weight matrices can be parameterized in their SVD to allow efficient normalization of such weights.
+As scaling models up tends to yield better performances, we are optimistic that FastH can contribute to better performing models for both classification and generative modelling.
 
 There are, however, some caveats. 
 For example, using the less efficient matrix exponential or the Cayley map to parametrize orthogonal matrices comes with the theoretical guarantee that no spurious minima will be introduced to the training dynamics~\cite{matrixexp1}.  
@@ -634,7 +648,7 @@ Although Householder products can represent any orthogonal matrix, such guarante
 As such, researchers may prefer theoretical guarantees to speed, which can potentially limit the applicability of FastH.
 
 With the FastFID algorithm, we have enabled researchers across all types of gradient based generative models to include the FID as an additional loss term, which can potentially improve the quality of the generated ``fake'' data.
-As such, we believe that the presented works constitutes two important steps towards better performing generative models.
+As such, we believe that the presented work constitutes an important step towards better performing generative models.
 Our hope is that such improvements can also improve the quality of explanations further down stream. 
 
 As is described in \paperref{pap:fastfid}, we tried extending the original log-likelihood loss of a Normalizing Flow with an additional FID term.
@@ -643,7 +657,7 @@ Backed by our experiment, we hypothesize that the discriminators of GANs ``detec
 This observation leaves best practices for applying the FID to generative models without discriminators as an open problem.
 
 As the main hypothesis of this thesis is that crossing research within explanations for neural networks with research within generative modeling has high potential, we continue to believe that both the presented algorithms can improve techniques within explainability further down-stream.
-We devote the next chapter to presenting multiple approaches for using generative models as central components for generating explanations for need neural networks. 
+We devote the next chapter to presenting multiple approaches for using generative models as central components for generating explanations for neural networks. 
 
 % While we tried applying FastFID to Normalizing Flows, which we use in the next chapter as a central component for an explainability method, we found that optimizing FID in this regard yields unrealistic fake samples.
 % Finding a way to improve NFs with the FID loss is thus a challenge left for future work. 
