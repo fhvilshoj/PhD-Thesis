@@ -672,84 +672,68 @@ We devote the next chapter to presenting multiple approaches for using generativ
 % +++ 1 page of introduction
 
 % 1. Neural Networks increasingly popular. For image classification, they even surpass human performance on some tasks.
-On many machine learning tasks, deep neural networks obtain state-of-the-art performances~\cite{todo}, sometimes even surpassing human performance~\cite{todo}.
+On many machine learning tasks, deep neural networks obtain state-of-the-art performances, sometimes even surpassing human performance~\cite{noisyStudent}.
 For such networks to be applicable in practice, it is critical that humans understand their behavior to be able to validate, justify, and reason about their predictions. 
-The field of explainable machine learning aims at developing methods that explain how machine learning models work.
+The field of explainable machine learning aims at developing methods that provide such understanding.
 % 2. This carries a need for ways to explain neural networks. We try to answer questions like "What information in the input made the network predict a certain output?", "What is the general behavior of the network?", and "How can I change the input in a meaningful way such that the predicted outcome changes?"
-Such explanations answer questions like ``For input X, what information in X made the model predict class Y?,''  ``What general patterns are the model looking for?,'' and ``How can I meaningfully change the input such that the predicted outcome changes?.'' 
+Methods typically answer questions like ``For input X, what information in X made the model predict class Y?,''  ``What general patterns are the model looking for?,'' and ``How can I meaningfully change the input such that the predicted outcome changes?.'' 
 There exist many methods for answering such questions. 
 %    Answering such questions gives a greater insight into the networks and allows users to get a deeper understanding of their behavior. It also allows identifying biases in the models and better understanding research from analyzing outcomes of models on research specific data. 
 % 3. Lots of methods exists. Some methods produces heatmaps, which identify salient input features, which were inportant for the predictions. Others produces maps of inputs which maximized activations of different neurons to detect what characteristics different neurons are looking for. 
 Methods that produce heatmaps typically answer the first question \cite{lrp}, while methods that identify inputs that maximize specific neurons answers the second question \cite{carter2019activation}. 
-The third question relates to counterfactual examples, which identifies how to alter inputs such that their predicted class changes.
-This thesis is mainly concerned with the latter, counterfactual examples. 
+The third question which relates to the main focus of this chapter is associated with counterfactual examples.
+Counterfactual examples identify how to alter inputs such that their predicted classes change.
 
 % 4. A perticular type of explanations are counterfactual examples.
 %   - Give a couple of examples of how they are useful and how they might be applied to different applications / fields of research.
-A typical example of a counterfactual explanation is when a loan applicant is told that to get the loan, the applicant should earn another 200 EUR per month and have 10 000 EUR more in savings.
-This is seen as a counterfactual example because the applicant is given actionable advice which is specific and realistic.
+A typical example of a counterfactual explanation is when a loan applicant is told that to get the loan, the applicant needs to earn another 200 EUR per month and have 10 000 EUR more in savings.
+This can be seen as a counterfactual example, as the applicant is shown an alternative ``reality'' in which the loan is granted.
 %told that had the salary not been $X$ but $X+200$ and savings not been $Y$, but $Y+200$, then the loan would have been granted. 
 To further illustrate the future prospects of counterfactual examples, suppose you have an accurate machine learning model that predicts side effects from molecular compounds.
-For such model, counterfactual examples would be similar molecular compounds, but without certain side effects.
+For such model, counterfactual examples could, \eg, be similar molecular compounds, but without certain side effects~\cite{carter2017using, moses}.
 Having access to such counterfactuals could potentially speed up drug development and improve the effectiveness of the drugs by guiding research towards drugs without side effects.
-Similar benefits could be made for other data driven research fields, autonomous vehicles misinterpreting their video feed, or surveillance systems picking out candidates for screening~\cite{goyal19a}. 
-In turn, we find the field of counterfactual explanations to be of high value for data driven research and many practical applications. 
+Similar benefits could be found in other data-driven research fields.
+For example, it would be possible to analyze autonomous vehicles misinterpreting their video feed or surveillance systems picking out candidates for screening~\cite{goyal19a}. 
+In turn, counterfactual explanations can potentially be of high value for data-driven research and many practical applications. 
 
 % 5. The more formal definition:
 %   - Give formal definition from causal structural models
 %   - Adapt definition to non-structural data and neural networks.
 %   - Give an example of a counterfactual example which conforms to the definition in terms of images.
-Counterfactual examples were originally introduced with causal structural models, where variables are related in causal graphs~\cite{todo}.
+Counterfactual examples were originally introduced with causal structural models, where variables are related in causal graphs~\cite{pearl2015a}.
 In such a setup, it is possible to estimate probabilities of variable outcomes, given specific changes to other variables.
-More formally, counterfactuals for causal structural models can be defined as follows:
-
-\begin{definition}\label{def:causal-counterfactual}
-\textbf{Causal counterfactual:} A counterfactual question is one where we seek
-information about how the world would have been different given
-some specific change. For example; in a situation where X \emph{did}
-happened, what if X had \emph{not} happened? 
-\end{definition}
-
 For most machine learning models, it is, however, not the case that variables are related by structural causal models.
 In such cases, a more relaxed problem is studied, where we consider counterfactuals of the following type: 
-
 \begin{definition}\label{def:dl-counterfactual}
-    \textbf{None-causal counterfactual:} A none-causal counterfactual question seeks what should have been changed to obtain a desired outcome. For example; input X yielded outcome Y, how should we change X to obtain outcome Z. 
+    \textbf{None-causal counterfactual:} A none-causal counterfactual question seeks what should be changed to obtain a desired outcome. For example; input X yielded outcome Y, how should we change X to obtain outcome Z. 
 \end{definition}
-
 With Definition \ref{def:dl-counterfactual}, the problem is relaxed in the sense that we no longer require any causal structure, but suffice with changing the prediction of a given classifier. 
 
-There are two important difference between the definitions. 
-First, given a causal structural model, Definition \ref{def:causal-counterfactual} will always yield the same answer to the same question because the causal model dictates the relationship between variables. 
-On the other hand, since machine learning models are most often surjective, there exists many answers to Definition \ref{def:dl-counterfactual}.
-As such, much of the researching within the field of non-causal counterfactuals revolves around finding good solutions to Definition \ref{def:dl-counterfactual}.
-The second difference is the applicability of the two definitions to high-dimensional data.
-When asking questions similar to Definition \ref{def:causal-counterfactual}, we can try to change a set of variables to see how it affects another variable of interest.
-When the dimensionality of the data increases, the combinatorial possibilities to try increases exponentially. 
-As such, for high dimensional data like, \eg, images, Definition \ref{def:causal-counterfactual} becomes less useful.
-On the contrary, when answering questions similar to Definition \ref{def:dl-counterfactual}, the computational complexity is left to the algorithms answering the question. 
-In turn, such algorithms are hard to develop, but easy to use successively.
-
+% There are two important difference between the definitions. 
+% First, given a causal structural model, Definition \ref{def:causal-counterfactual} will always yield the same answer to the same question because the causal model dictates the relationship between variables. 
+Since machine learning models are most often surjective, there may exist infinitely many answers to Definition \ref{def:dl-counterfactual} for a given classifier.
+As a consequence, many solutions to the problem may be of low value to end users if they are, \eg, unrealistic or carry no information for an end user.
+Therefor, much of the researching revolves around finding solutions to Definition \ref{def:dl-counterfactual} that are also useful to the end user.
+Algorithms are thus hard to develop, but should successively be easy to use by the end user.
 
 % 7. Clarify that we work on images, because results are easy to visually interpret and describe how 
-One of the main hypothesis of this thesis is that explanations for deep neural networks goes hand in hand with generating synthetic data. 
+One of the main hypothesis of this thesis is that explanations for deep neural networks goes hand in hand with methods for generating synthetic data. 
 In the field of generative models, much research has been done on images~\cite{realnvp, sngan, vae}.
 As we wish to combine generative models with explainability, it is therefor natural to focus on counterfactual examples in the image domain.
-In terms of Definition \ref{def:dl-counterfactual}, we refer to a counterfactual in the image domain as a new image, which resembles the original image, but with characteristic changes that make the predicted outcome change.
+In terms of Definition \ref{def:dl-counterfactual}, a counterfactual in the image domain is a new image, which resembles the original image, but with characteristic semantic changes that make the predicted outcome change.
 Such a counterfactual example will answer the question in Definition \ref{def:dl-counterfactual} by ``had the input had these particular changes, then the outcome would have been Z.''
-
 
 % 8. Describe why the problem is hard:
 %   - we want to change little but also enough to for the changes to be perceptible for humans.
 % 1. Surjectivity
 % 2. Not too far and not too little. 
 % The surjectivity of most machine learning models
-In the image domain, and arguably also in many other domains, it is hard to quantify how good a counterfactual example is.
+In the image domain, and arguably also in others, it is hard to quantify the quality of counterfactuals.
 We want changes to be small, but too small changes are also an issue. 
 There are, \eg, many neural networks which can be fooled to predict wrong classes by adding tiny carefully selected and imperceptible noise to the input image (also known as adversarial attacks)~\cite{su2019one}. 
 Such attacks are clearly too small changes and convey little or no information about the decision process of the predictive model. 
 Changing too much is also undesirable because a completely changed image caries little or no information about the original image.
-Therefor, the challenge is to design algorithms that strike the right balance between generating sparse changes, but still changing enough for humans to be able to see it. 
+Therefor, the challenge is to design algorithms that strike the right balance between generating small changes, but still changing enough for humans to be able to see it. 
 We devote the next section to describing some different paradigms used for generating counterfactual examples.
 
 % To ease development of counterfactual algorithms, multiple additional desideratum have been proposed.
@@ -773,8 +757,7 @@ We devote the next section to describing some different paradigms used for gener
 In the literature, there are two dominant approaches for generating visual counterfactual explanations.
 One approach relies heavily on iterative numerical optimization techniques to gradually generate images that optimize some objective function.
 The other approach trains surrogate models to predict counterfactual examples. 
-In this section, we will present ideas from the two approaches, before presenting our approach which opens a new direction of research. 
-
+In this section, we will present ideas from the two approaches, before presenting our approach which opens a new direction of research in the following Section \ref{sec:ecinn}. 
 \subsection{Iterative approaches}
 % 1. Gradient based approaches: 
 %  - Probably [Wachter] is a good starting point, 
@@ -785,63 +768,64 @@ In this section, we will present ideas from the two approaches, before presentin
 They consider low-dimensional tabular data, which is much different from images.
 However, their approach is arguably the most simple approach, and it was successively extended in multiple ways to also be applicable to images~\cite{Dhurandhar2018, VanLooveren2019}. 
 
-\citet{Wachter2017} argue that for tabular data, changes should be sparse and small to be more interpretable to humans.  % TODO Got to here..
-To get sparse counterfactuals, they present an algorithm which relies on gradients of the classifier to be explained, and is based on gradient optimization on the input to obtain a counterfactual, by penalizing non-sparse counterfactuals.
+\citet{Wachter2017} argue that for tabular data, changes should be sparse and small to be more interpretable to humans.
+To obtain sparse counterfactuals (small changes), they present an algorithm which relies on gradients of the classifier to be explained, and is based on gradient optimization on the input to obtain a counterfactual, by penalizing non-sparse counterfactuals.
 In particular, they propose to  minimize the following loss function.
 \begin{equation}\label{eq:wachter}
     \argmin_{\hat x} \max_\lambda 
     \lambda \underbrace{\|f(\hat x) - q)\|_2^2 }_{``prediction''}
     +       \underbrace{d(x, \hat x)}_{``closeness''},
 \end{equation}
-where $\lambda$ prioritizes high certainty predictions, $x, \hat x \in X$ are the input and counterfactual from the input domain $X$, respectively, $f: X \rightarrow \mathbb{R}^K$ is the prediction function over $K$ classes (\eg, a neural network), $q\in \{0, 1\}^K$ is the one-hot encoded target class, and $d(\cdot, \cdot)$ is a distance function.
+where $\lambda$ prioritizes high certainty predictions, $x, \hat x \in \mathcal{X}$ are the input and counterfactual from the input domain $\mathcal{X}$, respectively, $f: \mathcal{X} \rightarrow \mathbb{R}^K$ is the prediction function over $K$ classes (\eg, a neural network), $q\in \{0, 1\}^K$ is the one-hot encoded target class, and $d(\cdot, \cdot)$ is a distance function.
 The two terms in Equation \eqref{eq:wachter} encourages the counterfactual to change the predicted class and to stay in the vicinity of the input, respectively.
-For a training set $X = \{ x_1, ..., x_n \}, \quad x_i \in \mathbb{R}^d$, the authors propose to use an $L1$ distance normalized by the median of the absolute distance to the median for each feature $k$ as the distance metric $d$:
+
+For a training set $X = \{ x_1, ..., x_n  \}$ with $x_i \in \mathbb{R}^d$, the authors propose to use an $L1$ distance normalized by the median of the absolute distance to the median for each feature $k$ as the distance metric $d$:
 \begin{equation}
     d(x, \hat x) = \sum_{k=1}^d \frac{|x_k - \hat x_k|}{MAD_k}, 
 \end{equation}
-where $MAD_k$ is the median absolute distance defined by:
+where $MAD_k$ is the median absolute distance of feature $k$, defined by:
 \begin{equation}\label{eq:MAD}
     MAD_k = \operatorname{median}_{x\in X} (|x_k - \operatorname{median}_{x'\in X}(x'_k)|).
 \end{equation}
 \todo{$X$ is overloaded here. Find a way to make ``domain'' X caligraphic}
 The normalization is similar to normalizing each feature with the standard deviation of that feature, while being less affected by outliers. 
-It allows features that naturally varies more than others to also vary more in the resulting counterfactuals. 
+It allows features that naturally vary more than others to also vary more in the resulting counterfactuals. 
 
-In the image domain, it is less important to account for individual variances in each pixel, which in turn makes other methods like \cite{Dhurandhar2018} discard the normalization.
+In the image domain, it is less meaningful to account for individual variances in each pixel, which makes other methods like \cite{Dhurandhar2018} discard the normalization.
 For images, other issues arise.
-Specifically, pixels are highly inter-dependent and a loss function should arguably take into account the image as whole and not just individual pixels. 
+Specifically, pixels are highly inter-dependent and a loss function needs to take into account the image as a whole and not just individual pixels. 
 \citet{Dhurandhar2018} describe this issue differently;
-They argue that counterfactuals should lie ``close'' to the data manifold.
-A convolutional auto-encoder is used to quantify the closeness to the data manifold by computing the $L2$ norm of the discrepancy between the counterfactual and a reconstruction of the auto-encoder.
-Their loss function resembles that of Equation \eqref{eq:wachter} by having a ``prediction'' term and a ``closeness'' term:
+they argue that counterfactuals should lie ``close'' to the data manifold.
+A convolutional auto-encoder is used to quantify the closeness to the data manifold by computing the $L2$ norm of the discrepancy between the counterfactual and a reconstruction of the auto-encoder, $AE$.
+Given an input $x\in \mathcal{X}$ and a predicted class $y = \argmax_k f(x)_k$, their loss function resembles that of Equation \eqref{eq:wachter} by having a ``prediction'' term and a ``closeness'' term:
 \begin{equation}\label{eq:dhurandhar}
     \argmin_{\hat x} 
-    \underbrace{ c \cdot f_{\kappa}^{\text{hinge}}\left(\hat x\right)}_{\text{``prediction''}}
+    \underbrace{ c \cdot f_{\kappa}^{\text{hinge}}\left(\hat x, y\right)}_{\text{``prediction''}}
     +
     \underbrace{\beta\|x-\hat x\|_1+\|x-\hat x\|_{2}^{2}+\gamma\left\|\hat x-\mathrm{AE}\left(\hat x \right)\right\|_{2}^{2}}_{\text{``closeness''}}
 \end{equation}
 where $c, \beta$, and $\gamma$ are hyperparameters, and $f_{\kappa}^{hinge} (\cdot)$ is a hinge like loss to encourage the prediction to change to any other class:
 \begin{equation}
-    f_{\kappa}^{hinge} (\hat x) = \max \{ \left[ f(\hat x)\right]_y - \max_{i\neq y}\left[ f(\hat x) \right]_i, -\kappa \}.
+    f_{\kappa}^{hinge} (\hat x, y) = \max \{ \left[ f(\hat x)\right]_y - \max_{i\neq y}\left[ f(\hat x) \right]_i, -\kappa \}.
 \end{equation}
 Again, counterfactuals are obtained by gradient descent or other iterative numerical approaches on the input.
 From the experiments in \cite{Dhurandhar2018}, there is a slight qualitative improvement in adding the auto-encoder term in Equation \eqref{eq:dhurandhar}. 
 
 An idea to further improve the loss function was presented by \citet{VanLooveren2019}, who add a loss term that compares encodings of the counterfactual from the auto-encoder with train-set-wide average encodings from the nearest class. 
-The additional term is $\theta \| \hat x - proto \|_2^2$, where $proto$ is the closes prototype to the original inputs encoding
+The additional term is $\theta \| \hat x - proto \|_2^2$, where $proto$ is the closest prototype to the original inputs encoding
 \begin{equation}\label{eq:prototype}
     proto = \argmin_{i \neq y} \| ENC(x) - \frac{1}{|X_i|}\sum_{x\in X_i}^K ENC(x_i)\|_2.
 \end{equation}
-The loss term is supposed to help guide both the ``prediction'' part of the loss by choosing the closest target class through $proto$ and to help the ``closeness'' by encouraging realistic counterfactuals by ensuring that the embedding of the counterfactual are close to the embeddings of the training data.
+The loss term is supposed to help guide both the ``prediction'' part of the loss by choosing the closest target class through $proto$ and to help the ``closeness'' by encouraging realistic counterfactuals by ensuring that the embedding of the counterfactual is close to the embeddings of the training data.
 Through experiments, \citet{VanLooveren2019} find that the additional loss term improves the quality of the counterfactuals as well as decreases the number of gradient steps needed.
 In turn, they manage to find counterfactuals faster. 
 
-There does also exist other iterative approaches.
+There do also exist other iterative approaches.
 For example, \citet{goyal19a} treat convolutional neural networks as a composition of a (convolutional) feature extractor and a (fully connected) classifier.
-They use the feature extractor to extract embeddings for smaller patches of the image and an image from the target class. 
-They successively use a greedy iterative algorithm to swap in image patches from a sample of the target class to obtain a combination of patches from the original and the target class image to get a hybrid image that changes the class prediction.
+They use the feature extractor to extract embeddings for smaller patches from both the input image and an image from the target class. 
+They successively use a greedy iterative algorithm to swap in patches from the target-class-sample to obtain a combination of patches from the original and the target class image to get a hybrid image that changes the class prediction.
 Such an approach is good, when the available data is too scarce to train a generative model. 
-For tabular data, there also exists examples of genetic algorithms \cite{Hashemi2020} and heuristics based on simple statistics~\cite{Gomez2020}.
+For tabular data, there also exist examples of genetic algorithms \cite{Hashemi2020} and heuristics based on simple statistics~\cite{Gomez2020}.
 Such methods are, however, less applicable to the image domain due to the exponential increase in input possibilities and will not be discussed further. 
 
 Common for all iterative approaches mentioned is that they require many evaluations of the classifier which is being explained.
@@ -880,19 +864,19 @@ The general idea can be formulated as follows:
         +            \underbrace{\mathcal{L}(x , G(z))}_{\text{``closeness''}}]\\
     \hat x &= G(\hat z),
 \end{align} 
-which is a minimization of latent codes $z$, that are translated into counterfactuals $\hat x$ by a generator $G$, and typically have a ``prediction'' and a ``closeness'' term in the optimization loss.
+which is a minimization of latent codes $z$, that are translated into counterfactuals $\hat x$ by a generator $G$, and typically have a ``prediction'' term $\ell$ and a ``closeness'' term $\mathcal{L}$ in the optimization loss.
 The difference between methods lies in how latent codes are optimized and what type of generator is used. 
 \cite{Joshi2018} was the first to propose such setup.
 Both Variational auto-encoders and generative adversarial networks were used as generators, while gradient descent was applied to identify latent codes. 
 
-\citet{Rodriguez2021} propose to optimize latent codes of an auto-encoder to alter the auto-encoder embeddings and allow the decoder to generate the counterfactual examples.  
-The method works by initially training a $\beta$-TCVAE \cite{disentangle_vae}, which was shown to perform well on disentangling its latent space.
-The auto-encoder is successively frozen and used merely to translate between the image domain and the latent domain.
-As the auto-encoder is disentangling its latent space such that different latent features affects different semantic image features, the latent space provides a good tuning nob for generating diverse counterfactual examples by individually tuning different latent features.
+\citet{Rodriguez2021} propose to optimize latent vectors of a VAE and allow the decoder to generate the counterfactual examples.  
+The method works by initially training a $\beta$-TCVAE \cite{disentangle_vae}, which has been shown to perform well on disentangling its latent space.
+The VAE is successively frozen and used merely to translate between the image domain and the latent domain.
+As the VAE is disentangling its latent space such that different latent features affects different semantic image features, the latent space provides a good tuning nob for generating diverse counterfactual examples by individually tuning different latent features.
 To achieve diversity in their counterfactuals, \citet{Rodriguez2021} propose to simultaneously find $n$ latent codes $\{\epsilon_i\}_{i=1}^n$ for each input sample, such that $f(D( E(x) + \epsilon_i) ) = f(\hat x) \approx q$, where $E$ and $D$ are the encoder and decoder, respectively.
 The latent codes are optimized with a loss function that penalizes the latent codes for not being orthogonal, meanwhile being sparse.
 Although this method is also iterative as the methods above, it differs by utilizing the generative capabilities of the auto-encoder to find counterfactual examples through latent space optimizations.
-Judging by their experiments, they obtain counterfactual examples of high visual quality and further demonstrate superior performance on the Fr\'echet Inception Distance (FID) metric, which we will cover later in this thesis.
+Judging by their experiments, they obtain counterfactual examples of high visual quality and further demonstrate superior performance on the Fr\'echet Inception Distance (FID), which we will discuss in the context of counterfactuals in the next chapter.
 
 % GAN version: Singla2019
 Similar to how auto-encoders have been successful in the field of generative models, so have generative adversarial networks (GANs) \cite{gans}.
@@ -916,7 +900,7 @@ We analyze conditional normalizing flows used as classifiers and derive a closed
 
 % +++ 2 pages on our work.
 % \section{Counterfactuals from Normalizing Flows [contrinbution]}
-\section{Efficient Counterfactuals from Invertible Neural Networks\contribution{pap:ecinn}}
+\section{Efficient Counterfactuals from Invertible Neural Networks\contribution{pap:ecinn}}\label{sec:ecinn}
 In the work of this thesis, we have proposed a third method, Efficient Counterfactuals from Invertible Neural Networks (ECINN), based on generative models, which avoids the drawbacks of both the iterative approaches and the generative approaches.
 Specifically, ECINN has a close-form expression for producing a counterfactual, needing no iterative optimization algorithms, and it uses only the predictive model $f$, so it needs no additional training. 
 With ECINN, we obtain high quality explanations from just one forward pass needed to encode the input image and one backward pass needed to generate the counterfactual. 
@@ -1478,28 +1462,28 @@ FastFID opens up for future research in incorporating FID in training losses, to
 \label{chap:fasth}
 \paperlabel{pap:svd}
 \chapterprecishere{\todo{\dots}}
-\includepdf[pages=-9]{papers/FastH.pdf}
+\includepdf[pages=-10]{papers/svd_w.pdf}
 
 % FastFID
-\chapter{Fast Freché Inception Distance}
+\chapter{Backpropagating through Fr\'echet Inception Distance}
 \label{chap:fastfid}
 \paperlabel{pap:fastfid}
 \chapterprecishere{\todo{\dots} \todo{Update to latest draft}}
-\includepdf[pages=-10]{papers/FastFID.pdf}
+\includepdf[pages=-13]{papers/fastfid_w.pdf}
 
 % ECINN
 \chapter{ECINN: Efficient Counterfactuals from Invertible Neural Networks}
 \label{chap:ecinn}
 \paperlabel{pap:ecinn}
 \chapterprecishere{\todo{\dots}}
-\includepdf[pages=-10]{papers/ECINN.pdf}
+\includepdf[pages=-19]{papers/ecinn_w.pdf}
 
 % Evaluating counterfactuals. 
-\chapter{TODO Update title of Evaluation paper}
+\chapter{On Quantitative Evaluations of Counterfactuals}
 \label{chap:evaluation-paper}
 \paperlabel{pap:evaluation}
 \chapterprecishere{\todo{\dots}}
-\includepdf[pages=-10]{papers/cfscore.pdf}
+\includepdf[pages=-14]{papers/eval_w.pdf}
 
 \backmatter
 
