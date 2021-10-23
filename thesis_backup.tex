@@ -144,7 +144,7 @@
 \usepackage[bookmarks,pagebackref,breaklinks]{hyperref}
 
 % \newcommand*{\contribution}[1]{\hspace{0.5em}\hyperref[#1]{$\blacktriangleright$}}
-\newcommand\contribution[1]{\hspace{0.5em}\hyperref[#1]{P\ref{#1}}}
+\newcommand\contribution[1]{\hspace{0.5em}\hyperref[#1]{\ding{81}}}
 
 % START Paper Counter
 \newcounter{papercounter}
@@ -241,20 +241,16 @@ Thanks to \todo{\dots}
 
 \cleardoublepage
 \chapter*{{\Huge Preface}}
-This PhD thesis is written to follow the PhD rules and regulations of the Graduate School of Natural Sciences~\cite{au-regulations}. 
-As described in \S 11.1 in \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
-This thesis follows such structure by including four papers with individual introductions.
-The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
-To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, we have annotated section titles relating directly to specific papers with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
-If you are reading the thesis on a computer, the symbol is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
+% This PhD thesis is written to follow the PhD rules and regulations of the Graduate School of Natural Sciences~(GSNS)\cite{au-regulations}. 
+% As described in \S 11.1 in \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
+% This thesis follows such structure by including four papers with individual introductions.
+% The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
+% To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, we have annotated section titles relating directly to specific papers with the symbol  ``\hspace{-0.5em}\contribution{pap:svd}.''
+% If you are reading the thesis on a computer, the symbol is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
+% If not, it will also always be clear from the text, which paper the section relates to.
 
-We include the following four papers in this thesis.
-\begin{description}
-    \item[\paperref{pap:svd}:] \cite{fasth} Alexander Mathiasen, Frederik Hvilsh\o j, Jakob R\o dsgaard J\o rgensen, Anshul Nasery, and Davide Mottin. What if Neural Networks Had SVDs? In NeurIPS, 2020.
-    \item[\paperref{pap:fastfid}:] \cite{fastfid} Alexander Mathiasen and Frederik Hvilshøj.  Backpropagating through Fr\'echet Inception Distance. CoRR, abs/2009.14075, 2020.  URL \url{https://arxiv.org/abs/2009.14075}.
-    \item[\paperref{pap:ecinn}:] \cite{ecinn} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. ECINN: efficient coun-terfactuals from invertible neural networks. In BMVC, 2021. 
-    \item[\paperref{pap:evaluation}:] \cite{evaluation} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. On Quantitative Evaluations of Counterfactuals. CoRR, abs/{\color{red}XXX, 2021. URL \url{https://arxiv.org/abs/XXX}}.
-\end{description}
+
+% \cite{ecinn, fastfid, fasth, evaluation}
 
 % This thesis includes four papers:
 % \begin{itemize}
