@@ -88,7 +88,6 @@
 \DeclareMathOperator*{\argmax}{\arg\max}
 \DeclareMathOperator*{\argmin}{\arg\min}
 
-
 \usepackage{xcolor}
 % Color palet: https://www.color-hex.com/color-palette/101880
 \definecolor{green}{RGB}{7,70,80}
@@ -139,16 +138,18 @@
 
 
 % Generally load hyperref last (except if using cleverref for example)
-\usepackage[bookmarks,pagebackref]{hyperref}
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-}
+\usepackage{breakurl}
+\usepackage[bookmarks,pagebackref,breaklinks]{hyperref}
 
 % \newcommand*{\contribution}[1]{\hspace{0.5em}\hyperref[#1]{$\blacktriangleright$}}
-\usepackage{pifont}
 \newcommand\contribution[1]{\hspace{0.5em}\hyperref[#1]{\ding{81}}}
 
 % START Paper Counter
 \newcounter{papercounter}
 \newcommand*{\paperlabel}[1]{\vspace{-1cm}{\Large Paper \refstepcounter{papercounter}\thepapercounter \label{#1}\\}\vspace{0.5cm}}
-\newcommand*{\paperref}[1]{Paper \hyperref[#1]{\ref{#1}}}
+\newcommand*{\paperref}[1]{Paper~\hyperref[#1]{\ref{#1}}}
 % END Paper Counter
 
 \hypersetup{
@@ -159,7 +160,8 @@
     citecolor=lightgreen,
 }
 
-\title{Neural Networks and Explainability}
+% \title{Neural Networks and Explainability}
+\title{Neural Networks and Counterfactual \\Explanations}
 \author{Frederik Hvilsh{\o}j}
 \date{\today}
 
@@ -202,7 +204,7 @@
 \begin{center}
   A Dissertation\\
   Presented to the Faculty of Natural Sciences\\ of Aarhus University\\
-  in Partial Fulfillment of the Requirements\\ for the PhD Degree
+  in Partial Fulfilment of the Requirements\\ for the PhD Degree
 \end{center}
 \vfill
 \begin{center}
@@ -239,12 +241,24 @@ Thanks to \todo{\dots}
 
 \cleardoublepage
 \chapter*{{\Huge Preface}}
+This PhD thesis is written to follow the PhD rules and regulations of the Graduate School of Natural Sciences~(GSNS)\cite{au-regulations}. 
+As described in \S 11.1 in \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
+This thesis follows such structure by including four papers with individual introductions.
+The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
+To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, we have annotated section titles relating directly to specific papers with the symbol  ``\hspace{-0.5em}\contribution{pap:svd}.''
+If you are reading the thesis on a computer, the symbol is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
+If not, it will also always be clear from the text, which paper the section relates to.
 
-\todo{Describe how sections anotated with an \contribution{pap:fid} are directly related to a published paper.}
+
+\cite{ecinn, fastfid, fasth, evaluation}
+
+This thesis includes four papers:
+\begin{itemize}
+    \item \paperref{pap:svd} \cite{fasth}: What if Neural Networks had SVDs? \emph{NeurIPS 2020, spotlight}
+    \item \paperref{pap:fastfid} \cite{fid}
+\end{itemize}
 
 \todo{Describe that we present four papers and whether they are published or manuscripts.}
-
-\todo{References to rules on thesis (danish laws and faculty).}
 
 \cleardoublepage
 
@@ -258,53 +272,102 @@ Thanks to \todo{\dots}
 
 \part{Overview}
 \label{part:overview}
-% \chapter{Citation styles} 
-% \begin{description}
-% \item [\cite{glow}]	Standard, \verb!\cite{glow}!
-% \item [\citet{nice}]	Textual citation, \verb!\citet{nice}!
-% \item [\citep{glow}]	Parenthetical citation, \verb!\citep{glow}!
-% \item [\citet*{nice}]	Same as \verb!\citet! but if there are several authors, all names are printed, \verb!\citet*{nice}! 
-% \item [\citep*{glow, nice}]	The same as \verb!\citep! but if there are several authors, all names are printed, \verb!\citep*{glow, nice}!
-% \item [\citeauthor{glow}]	Prints only the name of the authors(s), \verb%\citeauthor{glow}%
-% \item [\citeyear{glow}], \verb!\citeyear{glow}!
-% \end{description}
-% \fref{chap:fasth}, \href{https://fhvilshoj.github.com}{fhvilshoj.github.com}
-
-% Lorem ipsum~\citep{nice,glow}. 
-
 % Jans thsis https://pure.au.dk/portal/files/196168781/thesis_Jan_Neerbek.pdf
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part I - Overview
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% % % %  % % % %  % % % %  % % % % 
-% New structure for Thesis:
-% % % %  % % % %  % % % %  % % % % 
-
-% The idea here is a top-down approach: 1. Introduce ECINN, as a way to use generative models, then ii) Say that when NFs are improved, so are CFs; we improve in SVD paper. iii) In the GAN literatyre, FID is typically used for evaluation, we evaluate how FID stacks up against other metrics in [metrics paper]. As FID is a valuable tool for evaluating counterfactuals, having a fast way to compute FID for small batches may help improve iteration cycles for counterfactual explanations and could potentially be used with a new gradient based method for generating counterfactuals.
-
 \chapter{Introduction} 
-% +++ 0.5 pages of over all introduction to the field of machine learning.
-% Introduction.
-% 1. Neural networks are Ubiqutous and millions of millions of dollars are being spent on training high-performing classifiers, generative models, etc. 
-% Fundamental for such training is efficient computations, as hardware is expensive and training requires a lot of power. 
-% We have studied various aspects of efficiently training generative models.
-% At the time of writing, deep neural networks are practically ubiquitous in the field of machine learning research.
+% % % % % DRAFT % % % % % % % %
+% Consider the images in Figure \ref{fig:biggan-samples}. 
+In Figure \ref{fig:biggan-samples}, we have displayed an image of a dog and a launching rocket. 
+You probably identified the content of the two images immediately. 
+Imagine that you had to ``tell a computer'' how to identify what such images contain.
+As computers represent images as large tables of numbers, this is a hard task.  
+Perhaps you can, \eg, identify why you think that the rocket is launching; had there not been all the smoke and the glare of light, the rocket would not have been launching.
+However, converting such insights into a ``recipe'' (algorithm) for the computer to follow is almost impossible.
+The field of machine learning has obtained astonishing results by turning the problem upside down.
+Instead of explicitly describing an algorithm for the computer to follow, machine learning algorithms are designed to dig through tons of images to derive an algorithm which the computer can successively use for guessing what is in the images, sometimes even performing better than humans can. 
 
-% +++   1 page of introducing to generative models  
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{graphics/biggan.png}
+    \caption{Images copied from \cite{biggan}.}
+    \label{fig:biggan-samples}
+\end{figure}
 
-% State our main hypothesis that generative models are closely related to counterfacutal generation.
-% +++   1 page on motivating counterfactuals
+The machine learning approach is immensely powerful and has been extended to all sorts of problems and tasks from cancer predictions~\cite{cancer} to generating ``fake synthetic'' data~\cite{biggan}. 
+Did you, \eg, notice that the images in Figure \ref{fig:biggan-samples} are ``fake''? 
+The images are artificial and depict a dog and a rocket which never existed.
+To generate such images, a machine learning algorithm dug through more than a million images to devise an algorithm for synthesizing ``fake'' images that look realistic. 
+At the time of writing, neural networks are perhaps the most employed machine learning models. 
+It is, \eg, a neural network that generated the images in Figure \ref{fig:biggan-samples}. 
 
+Although neural networks are powerful and can solve a wide range of tasks, such networks also come with certain drawbacks.
+First, digging through tons of data requires a lot of compute, typically on very expensive hardware.
+Some neural networks were, \eg, trained for several days~\cite{alexnet, alphafold} or even weeks on \$100+ million hardware.\footnote{A very recent blog post from NVIDIA describes a generative model with 530 billion parameters trained for at least 35 days on 560 machine learning servers at an individual price of $\sim$\$200.000~\cite{nvidia-bigass-mofo}.}
+Today, most major performance improvements stem from larger datasets or larger neural networks, see (\eg, ~\cite{gpt-3}).
+As a consequence, if one can derive faster machine learning algorithms, then neural networks can be improved by increasing the amount of data used or by increasing the size of the networks, without increasing the computational budget.
+Second, the resulting algorithms that can, \eg, identify dogs and rockets in images, come with no direct way of reasoning. 
+For example, it is not straight forward how to get a counterfactual reasoning similar to how we did with the smoke and the glare of the rocket above.
+Even though a neural network may correctly guess, \eg, the content of an image, it is typically hard to tell \emph{why} the network guessed as it did.
+Being able to tell \emph{why} could, \eg, enable us to validate the behavior of machine learning models used to automatically judge humans, to ensure a fair judgement.
+
+This thesis revolves around those two issue, \ie, how can we speed up machine learning algorithms, and how can we reason about \emph{why} particular predictions were made by neural networks? 
+As a motivation for answering the latter question, we observe that when humans explain their behavior, they typically ``generate evidence'' that support their choices.
+For humans, such evidence could, \eg, be an emphasis on specific existing knowledge or a presentation of a hypothetical alternative reality for which their behavior would be different.
+In any case, the evidence need to be generated somehow.
+Generating such evidence seems well aligned with the capabilities of generative models, like the one generating the images in Figure \ref{fig:biggan-samples}. 
+As a consequence, we form the main hypothesis of this thesis:
+%
+\begin{quote}
+    We hypothesize that crossing generative models with explainability can produce state-of-the-art methods for explaining neural networks. 
+\end{quote}
+%
+This thesis sheds light on the hypothesis by considering three research questions:
+\paragraph{RQ1:} \emph{How can the efficiency of machine learning algorithms be improved?}\\
+If our hypothesis holds, we believe that the performance of methods for explaining neural networks will be highly dependent on the performance of associated generative models. 
+In turn, it makes sense to also improve the performance of generative models.
+Improving training efficiency of machine learning algorithms will allow scaling up datasets or model sizes, which may yield better generative models. 
+Further down-stream, better generative models potentially improve explainability methods.
+%
+In Chapter \ref{chap:nns}, we present two novel algorithms that compute already established quantities within generative modelling, but much faster than existing algorithms.  
+
+\paragraph{RQ2:} \emph{How can generative models be utilized for explaining neural networks?}\\
+At the heart of our main hypothesis, we consider how to utilize generative models within the field of explainability.
+More specifically, we consider how we can use such models to efficiently generate high quality counterfactual examples, similar to the rocket without glare discussed above.
+In Chapter \ref{chap:ecinn-main}, we present a novel method for generating such counterfactual examples efficiently.
+
+\paragraph{RQ3:} \emph{How are methods for explaining neural networks best evaluated?}\\
+To identify state-of-the-art methods, proper evaluation metrics need to be established.
+In Chapter \ref{chap:evaluation}, we analyze and experimentally evaluate existing metrics for quantifying the performance of counterfactual examples before introducing two new metric to accompany the existing suite of metrics. 
+
+% IMPROVING TRAINING ALGORITHMS
+% 1. Generative models are expensive to train
+% 3. Bigger models seem to perform better. 
+% 2. Can we train them faster, then we can get bigger models.
+% 4. We developed two algorithms for training generative models faster.
+% 5. Arguably, better generative models will yield better explanations further down stream.
+
+% EXPLAINING NEURAL NETWORKS
+% 1. We demonstrate how to analytically generate  explanations like the one with glare and smoke from above
+% 2. ECINN is one of now multiple examples that demonstrate how generative models are very beneficial in terms of explaining neural networks.
+% 2. We further the field quantitatively evaluating counterfactual explanations.
+
+
+
+
+
+% \section{Contributions}
 % +++   0.5 pages summarizing the thesis and our contributions. 
 % Contributions
-\begin{itemize} 
-    \item Improving efficiency of training with orthogonal matrices.
-    \item Allowing efficient backpropagation through FID
-    \item Method for generating counterfactuals.
-    \item Evalution of counterfactual explanations.
-\end{itemize}
+% \begin{itemize} 
+    % \item Improving efficiency of training with orthogonal matrices.
+    % \item Allowing efficient backpropagation through FID
+    % \item Method for generating counterfactuals.
+    % \item Evalution of counterfactual explanations.
+% \end{itemize}
 
 % Other notes: 
 % We are interested in explainaility and how to explain deep neural networks.
@@ -367,7 +430,7 @@ Due to increased parallelization, the algorithm is faster than the sequential in
 In practice, we find that FastH is up to 27 times faster than the sequential algorithm and six times faster than the parallel. 
 Before presenting the details of the FastH algorithm in Section \ref{sec:fasth}, we cover some applications of representing weight matrices in their SVD and related work.
 
-\subsection{Applications.}
+\subsection{Applications}\label{sec:fasth-applications}
 Besides determinant computations, which we have already mentioned, we describe three additional applications for which parameterizing weight matrices in their SVD has advantages in terms of computational speed-ups.
 
 The first example is inverse computations. 
@@ -493,7 +556,7 @@ We also provide CUDA code, such that our algorithm can run efficiently on GPUs.
 At the time of writing, unsupervised generative modelling is a vibrant field of research.
 Informally, generative modelling aims at designing models which can approximate a data distribution to generate \emph{fake} data points which are likely to stem from such distribution.
 Within this area, deep neural networks have been employed as building blocks for various types of generative models.
-To name but a few, Variational Auto-encoders (VAEs)~\cite{vae}, Generative Adversarial Networks (GANs)~\cite{gans}, Normalizing Flows~\cite{nice}, and recently Score-based generative models~\cite{sgm} are some techniques based on neural networks.
+To name but a few, Variational Auto-encoders (VAEs)~\cite{vae}, Generative Adversarial Networks (GANs)~\cite{gans}, Normalizing Flows~\cite{nice}, and recently Score-based generative models~\cite{sgm-stochastic-differential-equations} are some techniques based on neural networks.
 
 As not all types of generative models are based on likelihood, a direct comparison of their performance is not trivial.
 Perhaps the most established way of evaluating generative models for images across model types is the Fr\'echet Inception Distance (FID)~\cite{fid, fid-comparison}. 
@@ -668,7 +731,7 @@ We devote the next chapter to presenting multiple approaches for using generativ
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % COUNTERFACTUAL EXPLANATIONS                                   %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\chapter{Counterfactual Explanations} 
+\chapter{Counterfactual Explanations} \label{chap:ecinn-main}
 % +++ 1 page of introduction
 
 % 1. Neural Networks increasingly popular. For image classification, they even surpass human performance on some tasks.
@@ -756,7 +819,7 @@ We devote the next section to describing some different paradigms used for gener
 %   - [Guidotti] or whatever she is called use tree based rules. 
 In the literature, there are two dominant approaches for generating visual counterfactual explanations.
 One approach relies heavily on iterative numerical optimization techniques to gradually generate images that optimize some objective function.
-The other approach trains surrogate models to predict counterfactual examples. 
+The other approach trains generative models to predict counterfactual examples. 
 In this section, we will present ideas from the two approaches, before presenting our approach which opens a new direction of research in the following Section \ref{sec:ecinn}. 
 \subsection{Iterative approaches}
 % 1. Gradient based approaches: 
@@ -834,12 +897,12 @@ For example, in \cite{VanLooveren2019}, they present average computation times p
 Imagining an interactive setting, where a user interacts with a system to understand the decisions of a machine learning model, thirteen seconds is too long to wait between each query.
 In \cite{card1991information}, they argue that $0.1$ seconds is the threshold that computation should stay below to work properly in an interactive setting.
 Conversely, the presented methods need little or no pre-computation before being applied to a model.
-In contrast, the approaches based on surrogate models, which we will present next, need to train generative models in advance, which can take days or even weeks, before the models can be used to explain the classifier.
+In contrast, the approaches based on generative models, which we will present next, need to train generative models in advance, which can take days or even weeks, before the models can be used to explain the classifier.
 
-\subsection{Surrogate Model Approaches} 
+\subsection{Generative Model Approaches} 
 
 As argued in \cite{Rodriguez2021}, the gradient based iterative approaches suffers from optimizing counterfactuals in the image space.
-The issue is that optimizing traditional metrics like the $L1$ and $L2$ norms typically result in unrealistic changes. 
+The issue is that optimizing traditional metrics like the $L1$ and $L2$ norms typically result in unrealistic changes to the inputs. 
 Although \cite{Dhurandhar2018} and \cite{VanLooveren2019} use auto-encoders to approximate closeness to the data distribution, they mainly compare counterfactuals in the image space.
 Furthermore, they do not take advantage of the generating capabilities of the auto-encoder, \ie, the decoder. 
 
@@ -855,7 +918,7 @@ Furthermore, they do not take advantage of the generating capabilities of the au
 % \content{ We should probably also mention xGEM \cite{Joshi2018}}
 % xGEM is very easy to describe, they assume that they have an implicite generative model $G$ with a latent space and use the loss
  
-Multiple works alleviate this issue by identifying latent codes of generative models that result in realistic counterfactuals in the image space~\cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}.
+Multiple works alleviate this issue by identifying latent codes of external generative models that result in realistic counterfactuals in the image space~\cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}.
 The general idea can be formulated as follows: 
 
 \begin{align}\label{eq:generator-cf}
@@ -864,7 +927,7 @@ The general idea can be formulated as follows:
         +            \underbrace{\mathcal{L}(x , G(z))}_{\text{``closeness''}}]\\
     \hat x &= G(\hat z),
 \end{align} 
-which is a minimization of latent codes $z$, that are translated into counterfactuals $\hat x$ by a generator $G$, and typically have a ``prediction'' term $\ell$ and a ``closeness'' term $\mathcal{L}$ in the optimization loss.
+which is a minimization of latent codes $z$, that are translated into counterfactuals $\hat x$ by an generator $G$, and typically have a ``prediction'' term $\ell$ and a ``closeness'' term $\mathcal{L}$ in the optimization loss.
 The difference between methods lies in how latent codes are optimized and what type of generator is used. 
 \cite{Joshi2018} was the first to propose such setup.
 Both Variational auto-encoders and generative adversarial networks were used as generators, while gradient descent was applied to identify latent codes. 
@@ -896,7 +959,7 @@ The method also follows \eqref{eq:generator-cf}, but uses a normalizing flow to 
 In the paper, it is proved that for a well-trained normalizing flow,  the generated samples will approximately stay on the data manifold, due to their specific gradient optimization mechanism, which is a theoretical property that have not been proved for other methods.
 In \paperref{pap:ecinn}, we also use a type of normalizing flows to produce counterfactuals. 
 As we will describe next, our approach is, however, fundamentally different. 
-We analyze conditional normalizing flows used as classifiers and derive a closed-form expression for producing unique counterfactuals efficiently, avoiding gradient optimizations and the use of a surrogate generative model.
+We analyze conditional Normalizing Flows used as classifiers and derive a closed-form expression for producing unique counterfactuals efficiently, avoiding gradient optimizations and the use of a external generative model.
 
 % +++ 2 pages on our work.
 % \section{Counterfactuals from Normalizing Flows [contrinbution]}
@@ -1040,7 +1103,7 @@ Applying ECINN to such model architecture would most likely result in less effic
 As such, we are optimistic that ECINN can successfully be applied to more powerful and popular architectures.
     
 With ECINN, we have introduced a promising new direction of research within the field of counterfactual explanations. 
-ECINN utilizes the benefits of generative models while having an analytical solution, in contrast to related work, which needs additional optimizations to either find counterfactual examples or pretrain surrogate models.
+ECINN utilizes the benefits of generative models while having an analytical solution, in contrast to related work, which needs additional optimizations to either find counterfactual examples or pretrain external generative models.
 ECINN produces high quality counterfactual examples that are visually on par with other methods base on generative models, and better than counterfactuals generated by iterative methods.
 In the next chapter, we change the perspective from particular methods for producing counterfactuals to how to quantitatively evaluate counterfactual examples. 
 
@@ -1299,7 +1362,7 @@ As such, we argue that such metrics are most valuable for less complex data.
 From our analysis and experiments, we found that the evaluated metrics for quantifying realistic changes can be fooled by adversarial-like examples.
 As a consequence, we introduce two new metrics that help quantify realistic changes, without giving good scores to such small changes.
 First, we introduce the oracle score, which is similar in construction to the $\operatorname{TCV}$, but uses a surrogate ``oracle'' for the evaluation.
-The oracle score is the proportion of counterfactuals $C = \{c(x)  | x \in X\}$ where the classifier $f$ agrees with the oracle $o$ on the counterfactual class: 
+The oracle score is the proportion of counterfactuals $C = \{c(x)  \mid x \in X\}$ where the classifier $f$ agrees with the oracle $o$ on the counterfactual class: 
 \begin{equation}\label{eq:oracle}
     \operatorname{Oracle} = \frac{1}{|C|}\sum_{c\in C} \mathbb{1}_{[ f(c) = o(c) ]}.
 \end{equation}
@@ -1348,25 +1411,8 @@ We hypothesize that the authors transform counterfactuals into heatmaps for whic
 
 A conclusive strategy for evaluating visual counterfactual examples may also seem to be missing in \paperref{pap:evaluation}. 
 However, as should be clear by now, metrics are still missing in terms of giving a complete evaluation of the five properties described above.
-As such, presenting a conclusive strategy could potentially harm further development by ignoring the missing aspect. 
+As such, presenting a conclusive strategy could potentially harm further development by ignoring the missing aspects. 
 In turn, we refrain from giving such strategy. 
-
-\paragraph{Future work.}
-We note that in \paperref{pap:evaluation}, we focus on minimal and necessary changes that are realistic and not the five properties highlighted in this thesis.
-The focus has been changed in this thesis to better convey the fact, that although we evaluate existing metrics and even propose two new metrics, there are still open questions left. 
-Therefor, we here devote some space to promising directions of future research. 
-
-As sparsity and proximity is largely left unquantified, this presents an open question, which is of high importance for the field.
-As we hinted at with the toy-example above and \citet{Rodriguez2021} further demonstrate, using deep neural networks with strong representational power to quantify, \eg, proximity, pose a promising direction of research.
-If a well-trained latent space model like a Normalizing Flow~\cite{}, a VAE, or maybe a Score based model~\cite{} is used
-to embed images into a more ``meaningful' latent space, possibly even disentangling latent space, it may be possible to 
-quantify properties like sparsity and proximity much better.
-In a similar vein as \cite{flow-cf}, it can even be possible in some cases to prove theoretical guarantees about such properties. 
-
-As hinted at, a standard benchmark for counterfactual methods is also needed to ensure proper progress within the field of counterfactual examples. 
-One solution to this problem could be to aggregate scores from different metrics into one number, which captures all the mentioned properties.
-If such a benchmark is to be proposed, it is critical that all desired properties of counterfactual examples are captures.
-For now, we encourage researchers to report all established metrics in order to give as complete a picture of a method's performance as possible.
 
 % Future work:
 % NB this is very important to mention somewhere, as the reader might get wrong expectations.
@@ -1375,48 +1421,80 @@ For now, we encourage researchers to report all established metrics in order to 
 %
     
 \chapter{Conclusion} 
-% +++ 1.5 pages of discussing our contributions.
-%  Put each of them into perspective. 
+Having summarized our four papers during the previous chapters, we conclude Part 1 of this thesis in this chapter.
+We discuss our work in terms of our main hypothesis and the associated research questions in Section \ref{sec:conclusion-discussion}. 
+Then, we conclude our contributions in Section \ref{sec:conclusion-conclusion} before
+describing promising future work in Section \ref{sec:conclusion-future-work}. 
+
+\section{Discussion}\label{sec:conclusion-discussion}
+% 1.5 page on how presented work relate to our research questions and the main hypothesis in general.
+Recall that the main hypothesis of this thesis is that crossing generative models with explainability can yield state-of-the-art explainability techniques. 
+We have shed light on this hypothesis through three different research questions.
+
+In Chapter \ref{chap:nns}, we have presented two answers for the first research question; how can we improve training efficiency?
+As it should be clear that both FastH and FastFID speed up computations used for training neural networks and as a consequence allow scaling data or model sizes within a limited computational budget, we seize the opportunity to illustrate how both algorithms could improve explanations.
+Taking ECINN as an example, we could, as described in Section \ref{sec:fasth-applications}, employ the FastH algorithm to compute determinants and inverses of certain layers of Normalizing Flows faster.
+Faster computations means larger scale, which typically yields higher generative performances.
+With a higher generative performance, we would expect ECINN to produce even more realistically looking counterfactual examples. 
+With FastFID, we could imagine adding the FID loss when training the conditional Normalizing Flow, which is used for both classification and generation of counterfactual examples.
+Adding the FID loss could potentially yield counterfactual examples of higher visual quality.
+For the interested reader, we did experiment with adding FID as a loss to a ``regular'' normalizing flow in \paperref{pap:fastfid}.
+This did, however, result in samples with visual artifacts.
+As such, it constitutes a direction of future work to derive a proper training mechanism for Normalizing Flows with an additional FID loss. 
+
+In Chapter \ref{chap:ecinn-main}, we presented ECINN, which is an answer to our second research question; how can generative models be used to explain neural networks?
+ECINN utilizes the generative capacities of conditional Normalizing Flows to generate explanations. 
+While related methods typically use generative models as external image generators that produce more realistically looking images, ECINN utilize the generative capabilities of  conditional Normalizing Flows. %, which can both be used for classification and conditional sampling.
+The method represents a new direction of research where a generative model is \emph{not} used as an external generator, but a central part of the classification network.
+We hypothesize that such close relationship between the classifier and the generator may lead to more faithful counterfactuals that more closely reflect the actual behavior of the classifier. 
+
+In Chapter \ref{chap:evaluation}, we considered the third research question; how can we best evaluate explanations?
+We provide a deeper insight into what propterties existing metrics capture and even introduce two new metrics.  
+Throug the discussion in Chapter \ref{chap:evaluation}, we also established that the suite of metrics for evaluating visual counterfactual explanations is still not complete.
+However, from the metrics which currently exist and from qualitative inspections, we found that ECINN outperforms methods that are not based on generative models.
+Furthermore, ECINN seems to qualitatively perform roughly on par with other approaches for generating counterfactual examples, such as those from \citet{Singla2019} and \citet{Rodriguez2021}, that are based on generative models. 
+ECINN does, however, have the additional property that it is based on an analytical solution instead of an optimization problem. 
+It is inconclusive which of ECINN and the other methods based on generative models holds the state-of-the-art within visual counterfactual examples.
+Despite the lacking conclusion, we fail to reject our main hypothesis, as all methods are based on generative models.
+As such, we continue to believe that there is great potential within this line of research.
 
 
+\section{Conclusion}\label{sec:conclusion-conclusion}
+% 0.75 page concluding our contributions.
+In this thesis, we have focused on combining generative models and the field of explainability.
+The research has been driven by the assumption that such combination can produce state-of-the-art methods for explainability. 
+We have introduced two published papers and two manuscripts, each of them contributing directly or indirectly to the field of explainability by the connection to our three research questions. 
+Below, we outline the main contributions of each paper.
 
-\section{Discussion}
-% Get inspiration here: https://users.clas.ufl.edu/msscha/thesiscss/thesis_disc.html
-Much research has gone into making counterfactual explanations. 
-Common for much work is that it is based on iterative optimization algorithms such as gradient descent, FIESTA, and integer linear programming.
-Such algorithms are often computationally heavy and slow.
-Other methods train surrogate models to predict counterfactuals explanations, given the input and a target class.
-Training such models is also computationally heavy because it needs to run over the training data multiple times.
-When surrogate models are trained, which need to be done only once, they are efficient because they need only one forward pass to generate a counterfactual.
-We further the field of research by introducing ECINN as a more light-weight and fast approach, needing to precompute average embeddings from just one pass through the training data.
-To generate a counterfactual explanation, ECINN needs just one forward and reverse pass. 
-When comparing counterfactuals of ECINN qualitatively to those of iterative approaches, samples looks more realistic and of higher quality.
-Comparing counterfactuals qualitatively to approaches using surrogate models, the quality is on-par or slightly worse.
+With \paperref{pap:svd}, which was published as a Spotlight paper at NeurIPS, we introduced FastH, a novel GPU-friendly algorithm for evaluating products of Householder matrices fast.
+The algorithm enjoys the fast asymptotic time complexity as a previous sequential algorithm, but with less sequential work.
+The algorithm is up to $27\times$ faster than the previous sequential algorithm.
+With FastH, it is possible to efficiently parameterize weights of neural networks in their SVD.
+SVD parametrized weights allows efficient computations of, \eg, the matrix determinant, the matrix inverse, and spectral normalization, all computations that are used in generative modelling. 
+As FastH can be plugged directly into the conditional Normalizing Flows used in the ECINN method that we introduced in \paperref{pap:ecinn}, it can potentially also improve the explanations of ECINN further down-stream.
 
-Arguably, the quality of ECINN is dependent on the performance of the INN on the likelihood metric.
-The likelihood performance is closely tied to the choice of the $\beta$-value, which trades off classification and generation performance.
-A downside of ECINN is that higher accuracies comes at a cost of lower generative performance and, in turn, worse counterfactual examples.
-Surrogate models do not have this issue, as their model parameters does not affect classification performance of the classifier under consideration.
-On the contrary, such surrogate models were trained to guess counterfactuals with no guarantees, where ECINN reflects the real counterfactuals and the real behavior of the model.
-In some cases, it even has guarantees for producing correct counterfactual examples.
+With the manusctips in \paperref{pap:fastfid}, we introduced FastFID,  an algorithm which allows computing the FID very efficiently for small mini-batches.
+If the minibatches are sufficiencly small, FastFID can be three orders of magnitude faster than the original implementation of FID. 
+With this significant speed-up, it becomes practically feasible to use FID as a loss function. 
+We demonstrate through experiments, that using FID as a loss both improves validation scores and seems to also improve image qualities for GANs.
+We are optimistic that using FID as a loss function can also improve explainability further down stream, due to better generative models.
 
-% +++ 0.75 pages concluding what we have done.
-\section{Conclusion}
-Explanability of neural networks is essential for their adaption to the real world.
-In this thesis, we provide a new method for generating counterfactuals from invertible neural networks. 
-The method outperform established methods and generates realistic counterfactuals.
-We further propose to parameterize NN weights in their SVD, to allow efficient inversion, matrix exponential, etc.
-This will arguably improve INNs and further down stream improve ECINN.
+As the main result in terms of our project hypothesis, we introduce ECINN in \paperref{pap:ecinn},  which was accepted at BMVC.
+The paper demonstrates how to use a generative classifier, the conditional Normalizing Flow, to generate counterfactual examples as an addition to classifying inputs. 
+ECINN is very efficient, as it generates counterfactual examples through an analytical expression, which requires only one forward and one reverse parse through the conditional Normalizing Flow.
+ECINN produces counterfactuals of higher quality than the iterative approaches it is compared against, and in contrast to other methods that are based on generative models, it produces counterfactuals based on an analytical expression, as compared to some optimization problem.
+We see ECINN as a promissing new direction of research where the classifier is also the generative model.
 
-For the field of counterfactual explanations to improve, it is essential to have proper metrics.
-We study how existing metrics performs on images and inctroduce two further metrics to improve the metric suite.
-We find that different metrics behaves similar to human interpretation, when complexity increases.
-One metric which is widely used to evaluate generative models if FID, which has also been used for counterfactual methods.
-In \cite{fastfid}, we show how to speed up FID computations of smaller batches, potentially speeding up iteration cycles for researchers developing new generative models and counterfactual explanations.
+Finally, we present a manuscript in \paperref{pap:evaluation}.
+In the paper, we give a deeper insight into what properties existing metrics for quantitatively evaluating visual counterfactuals do and do not capture.
+Such insights are based on an analysis and experimental evaluations of the metrics and reveals that no one quantitative metric considered should be reported in isolation.
+We further find that tiny adversarial-like changes to inputs can often yield undesirable good scores. 
+To mitigate this issue, we introduce the Oracle score and the TCV, which are both less susceptible to such adversarial-like changes. 
+Although we do not present a conclusive strategy for, \eg, determining which method performs the best, we believe that the solid understanding that we provide about existing metrics is an important first step and constitutes a stepping stone for future development of the field of counterfactual examples.
 
-% +++ 0.75 pages on future work. 
-\section{Future Work}
-\paragraph{ECINN.}
+\section{Future Work}\label{sec:conclusion-future-work}
+% 0.75 page on how to further develop our ideas. 
+
 Multiple properties can be proven about ECINN.
 \begin{itemize}
     \item For example, we can guarantee connectedness between counterfactual examples and training points, as latent decision space is a voronoi diagram and all points within a class must be connected with no other class intersecting the class.
@@ -1431,7 +1509,7 @@ Multiple properties can be proven about ECINN.
 The results from the SVD paper allows other types of models to be trained, where singular values can efficiently be constrained.
 \begin{itemize}
     \item For example, RNNs can be trained with singular values $\pm \varepsilon$ values, to avoid vanishing gradients.
-    \item Maybe blocks of transformers could be swapped out with svd blocks, to make the orthogonal. This would arguably stabilise training and allow an efficient regularization of the models.
+    \item Maybe blocks of transformers could be swapped out with svd blocks, to make the orthogonal. This would arguably stabilize training and allow an efficient regularization of the models.
 \end{itemize}
 
 
@@ -1450,6 +1528,104 @@ FastFID opens up for future research in incorporating FID in training losses, to
 
 
 
+
+\paragraph{Future work.}
+We note that in \paperref{pap:evaluation}, we focus on minimal and necessary changes that are realistic and not the five properties highlighted in this thesis.
+The focus has been changed in this thesis to better convey the fact, that although we evaluate existing metrics and even propose two new metrics, there are still open questions left. 
+Therefor, we here devote some space to promising directions of future research. 
+
+As sparsity and proximity is largely left unquantified, this presents an open question, which is of high importance for the field.
+As we hinted at with the toy-example above and \citet{Rodriguez2021} further demonstrate, using deep neural networks with strong representational power to quantify, \eg, proximity, pose a promising direction of research.
+If a well-trained latent space model like a Normalizing Flow~\cite{glow} or a VAE is used
+to embed images into a more ``meaningful' latent space, possibly even disentangling latent space, it may be possible to 
+quantify properties like sparsity and proximity much better.
+In a similar vein as \cite{flowcounterfactuals}, it can even be possible in some cases to prove theoretical guarantees about such properties. 
+
+As hinted at, a standard benchmark for counterfactual methods is also needed to ensure proper progress within the field of counterfactual examples. 
+One solution to this problem could be to aggregate scores from different metrics into one number, which captures all the mentioned properties.
+If such a benchmark is to be proposed, it is critical that all desired properties of counterfactual examples are captures.
+For now, we encourage researchers to report all established metrics in order to give as complete a picture of a method's performance as possible.
+
+
+% % % % % % % OLD CONCLUSION CHAPTER: % % % % % % % % % %% 
+
+% +++ 1.5 pages of discussing our contributions.
+%  Put each of them into perspective. 
+
+% TODO: Note that we demonstrate quantitatively in Eval paper that ECINN is better than VanLooveren and Wachter.
+
+
+% \section{Discussion}
+% % Get inspiration here: https://users.clas.ufl.edu/msscha/thesiscss/thesis_disc.html
+% Much research has gone into making counterfactual explanations. 
+% Common for much work is that it is based on iterative optimization algorithms such as gradient descent, FIESTA, and integer linear programming.
+% Such algorithms are often computationally heavy and slow.
+% Other methods train surrogate models to predict counterfactuals explanations, given the input and a target class.
+% Training such models is also computationally heavy because it needs to run over the training data multiple times.
+% When surrogate models are trained, which need to be done only once, they are efficient because they need only one forward pass to generate a counterfactual.
+% We further the field of research by introducing ECINN as a more light-weight and fast approach, needing to precompute average embeddings from just one pass through the training data.
+% To generate a counterfactual explanation, ECINN needs just one forward and reverse pass. 
+% When comparing counterfactuals of ECINN qualitatively to those of iterative approaches, samples looks more realistic and of higher quality.
+% Comparing counterfactuals qualitatively to approaches using surrogate models, the quality is on-par or slightly worse.
+
+% Arguably, the quality of ECINN is dependent on the performance of the INN on the likelihood metric.
+% The likelihood performance is closely tied to the choice of the $\beta$-value, which trades off classification and generation performance.
+% A downside of ECINN is that higher accuracies comes at a cost of lower generative performance and, in turn, worse counterfactual examples.
+% Surrogate models do not have this issue, as their model parameters does not affect classification performance of the classifier under consideration.
+% On the contrary, such surrogate models were trained to guess counterfactuals with no guarantees, where ECINN reflects the real counterfactuals and the real behavior of the model.
+% In some cases, it even has guarantees for producing correct counterfactual examples.
+
+% +++ 0.75 pages concluding what we have done.
+% \section{Conclusion}
+% Explanability of neural networks is essential for their adaption to the real world.
+% In this thesis, we provide a new method for generating counterfactuals from invertible neural networks. 
+% The method outperform established methods and generates realistic counterfactuals.
+% We further propose to parameterize NN weights in their SVD, to allow efficient inversion, matrix exponential, etc.
+% This will arguably improve INNs and further down stream improve ECINN.
+
+% For the field of counterfactual explanations to improve, it is essential to have proper metrics.
+% We study how existing metrics performs on images and inctroduce two further metrics to improve the metric suite.
+% We find that different metrics behaves similar to human interpretation, when complexity increases.
+% One metric which is widely used to evaluate generative models if FID, which has also been used for counterfactual methods.
+% In \cite{fastfid}, we show how to speed up FID computations of smaller batches, potentially speeding up iteration cycles for researchers developing new generative models and counterfactual explanations.
+
+% +++ 0.75 pages on future work. 
+% \section{Future Work}
+% \paragraph{ECINN.}
+% Multiple properties can be proven about ECINN.
+% \begin{itemize}
+%     \item For example, we can guarantee connectedness between counterfactual examples and training points, as latent decision space is a voronoi diagram and all points within a class must be connected with no other class intersecting the class.
+%     \item Due to the inverse property of Wasserstrin distance, I think that we can prove, that counterfactual examples have some proximity to the real distribution, based on the likelihood in the latent space.
+%     \item ECINN also supports exaggerating changes in explanations by traversing the latent space, similar to \cite{Singla2019}. 
+%     \item \cite{Singla2019} also asserts that self concistency (cf of cf of x should be x) is important. ECINN has this property.
+%     \item \cite{Singla2019} promotes compatibility in the sense that f(I(x, c)) should be roughly f(x) + c for a stepsize c in probability. We could easily adapt ECINN to this scenario by choosing the proper $\alpha$ values.
+%     \item \cite{Singla2019} following the manifold is also done just from using the normalizing flows.
+% \end{itemize}
+
+% \paragraph{SVD.}
+% The results from the SVD paper allows other types of models to be trained, where singular values can efficiently be constrained.
+% \begin{itemize}
+%     \item For example, RNNs can be trained with singular values $\pm \varepsilon$ values, to avoid vanishing gradients.
+%     \item Maybe blocks of transformers could be swapped out with svd blocks, to make the orthogonal. This would arguably stabilise training and allow an efficient regularization of the models.
+% \end{itemize}
+
+
+% \paragraph{Evaluating Counterfactuals.}
+% It is clear from the paper, that the evaluation metric picture is not complete yet.
+% More metrics are needed to capture the intentions of counterfactual explanations.
+% \begin{itemize}
+%     \item Examples could be using super-pixels to evaluate how many regions are dramatically changes
+%     \item Better density estimates of counterfactuals
+%     \item Comparing densities for specific inputs and counterfactuals to see if CFs are realistic and still close to the input. Here, disentanglement might be necessary.
+% \end{itemize}
+
+
+% \paragraph{FastFID}
+% FastFID opens up for future research in incorporating FID in training losses, to potentially better guide computation of generative models or counterfactual examples. 
+
+% % % % % % % END OLD CONCLUSION CHAPTER: % % % % % % % % % %% 
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Part II - the publication chapters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1461,28 +1637,41 @@ FastFID opens up for future research in incorporating FID in training losses, to
 \chapter{What if Neural Networks had SVDs?}
 \label{chap:fasth}
 \paperlabel{pap:svd}
-\chapterprecishere{\todo{\dots}}
+\chapterprecishere{
+    \textbf{Publication}: Published as part of Advances in Neural Information Processing Systems 33 (NeurIPS 2020).\\
+    \textbf{Author contributions:} I was one of the main contributor to this paper. I participated in all parts of the project, from developing the theory to designing experiments, and writing the paper. 
+}
+
 \includepdf[pages=-10]{papers/svd_w.pdf}
 
 % FastFID
 \chapter{Backpropagating through Fr\'echet Inception Distance}
 \label{chap:fastfid}
 \paperlabel{pap:fastfid}
-\chapterprecishere{\todo{\dots} \todo{Update to latest draft}}
+\chapterprecishere{
+    \textbf{Publication}: Manuscript\\
+    \textbf{Author contributions:} Alexander and I made equal contributions to this paper. I participated in all parts of the project, from developing the theory to designing experiments, and writing the paper. 
+}
 \includepdf[pages=-13]{papers/fastfid_w.pdf}
 
 % ECINN
 \chapter{ECINN: Efficient Counterfactuals from Invertible Neural Networks}
 \label{chap:ecinn}
 \paperlabel{pap:ecinn}
-\chapterprecishere{\todo{\dots}}
+\chapterprecishere{
+    \textbf{Publication}: Accepted at the British Machine Vision Conference, 2021.\\
+    \textbf{Author contributions:} I was the main contributor to this paper.
+}
 \includepdf[pages=-19]{papers/ecinn_w.pdf}
 
 % Evaluating counterfactuals. 
 \chapter{On Quantitative Evaluations of Counterfactuals}
 \label{chap:evaluation-paper}
 \paperlabel{pap:evaluation}
-\chapterprecishere{\todo{\dots}}
+\chapterprecishere{
+    \textbf{Publication}: Manuscript\\
+    \textbf{Author contributions:} I was the main contributor to this paper.
+}
 \includepdf[pages=-14]{papers/eval_w.pdf}
 
 \backmatter
