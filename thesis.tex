@@ -412,12 +412,12 @@ This raises an intriguing quiestion; can we compute $WX$ in the fast asymptotic 
 
 \paragraph{Contributions.} In \paperref{pap:svd}, we introduce a GPU friendly algorithm FastH, which computes the exact same Householder product and obtains the fast asymptotic running time $O(d^2m)$, while requiring only $O(t + d/t)$ sequential matrix-matrix operations for an adjustable group size $t$, as compared to $O(d)$ sequential matrix-vector computations used by the sequential algorithm.
 In practice, we find that FastH is up to 27 times faster than the sequential algorithm and six times faster than the parallel. 
-Before presenting the details of the FastH algorithm in Section \ref{sec:fasth}, we cover some applications of representing weight matrices in their SVD and related work.
+Before presenting the details of the FastH algorithm in Section \ref{sec:fasth}, applications of representing weight matrices in their SVD and related work are described.
 
 \subsection{Applications}\label{sec:fasth-applications}
-Besides determinant computations, which we have already mentioned, we describe three additional applications for which parameterizing weight matrices in their SVD has advantages in terms of computational speed-ups.
+Besides the determinant computations, which we have already mentioned, we describe three additional applications for which parameterizing weight matrices in their SVD has advantages in terms of computational speed-ups.
 
-The first example is inverse computations. 
+The first example is the matrix inverse. 
 Inverting a $d\times d$ matrix generally takes $O(d^3)$ time.
 With the SVD parametrization, we can compute the matrix inverse as follows:
 \begin{equation}\label{eq:svd-inverse}
@@ -425,18 +425,18 @@ With the SVD parametrization, we can compute the matrix inverse as follows:
 \end{equation}
 From Equation \eqref{eq:svd-inverse}, we see that transposing $U$ and $V$, and inverting the diagonal matrix $\Sigma$ is enough.
 In the Householder representation shown in Equation \eqref{eq:hh-decomposition}, multiplying with the transpose of $U$ or $V$ simply corresponds to reversing the order of the householder matrices.
-In turn, it takes $O(1)$ time to do the transpose operation, as nothing needs to be done. 
+In turn, it takes $O(1)$ time to do the transpose operation. 
 Inverting a diagonal matrix takes $O(d)$ time. 
-Consequently, the inverse can be computed in $O(d)$ rather than $O(d^3)$.
+Consequently, the inverse can be computed in $O(d)$ rather than $O(d^3)$ time.
 
 The second example is weight decay, which is arguably one of the most established regularizers of neural networks.
-The squared Frobenius norm  has the property that  it can also be computed as the sum of squared singular values, \ie, $\|W\|_F^2 = \sum_{i,j=1}^d W_{i,j}^2 = \sum_{i=1}^d \Sigma_{ii}^2$.
+The squared Frobenius norm has the property that it can be computed as the sum of squared singular values, \ie, $\|W\|_F^2 = \sum_{i,j=1}^d W_{i,j}^2 = \sum_{i=1}^d \Sigma_{ii}^2$.
 Therefor, when we can read off the diagonal of $\Sigma$ directly, we can compute weight decay in $O(d)$ time instead of the $O(d^2)$ time it takes to compute the square of all entries in $W$.
 Additionaly, some works utilize the nuclear norm, which simply constitutes the sum of singluar values $\|W\|_\ast = \sum_{i=1}^d \Sigma_{i,i}$~\cite{nuclear-norm-regularizer, nuclear-norm-regularizer2}. 
 In contrast to the Frobenius norm, the nuclear norm requires explicitly computing the SVD in $O(d^3)$ time at each training step.
-Although not straight forward to implement in the mentioned work due to additional training details, such norm could again be computed in $O(d)$ time if $\Sigma$ was known. 
+Although not straight forward to optimize  $U$ and $V$ in the mentioned work due to additional training details, such norm could again be computed in $O(d)$ time if $\Sigma$ was known. 
 
-The third and final application is spectral normalization, which is used to train generative adversarial networks~\cite{sngan, wgan} and can, \eg, also be used to make neural networks more robust against adversarial attacks~\cite{spectral-norm-robustness}. 
+The third and final application is spectral normalization, which is used to train generative adversarial networks~\cite{sngan, wgan} and to make neural networks more robust against adversarial attacks~\cite{spectral-norm-robustness}. 
 Spectral normalization constrains the largest singular value of $W$ to be one, \ie, $W = W / \max_{i}(\Sigma_{i,i})$. 
 As discussed, computing the SVD to find $\Sigma$, and thus $\max_i(\Sigma_{i,i})$, takes $O(d^3)$ time, which is typically too slow in practice.
 Related work often circumvent the high computational cost by clipping the weights~\cite{wgan} or approximating the largest singular value through the power iteration algorithm~\cite{sngan, spectral-norm-robustness}.
@@ -450,7 +450,7 @@ At an intermediate level, orthogonal matrices have also been employed in neural 
 Finally, at the lowest level, various methods for enabling optimization of orthogonal matrices also exist.
 
 As is well known, the SVD is closely tied to the dimensionality reduction method Principal Component Analysis, as the columns of $U\Sigma$ are the principal components of a data matrix $X = U \Sigma V^\intercal$.
-After training a neural network, a natural way to compress the network to get a faster ``low rank approximation'' is thus to use only some principal components of each weight matrix.
+After training a neural network, a natural way to compress the network to get a faster ``low rank approximation'' of the network is to use only the first $k$ principal components of each weight matrix.
 To circumvent training large networks before compressing them, this idea has been extended in multiple ways.
 For example, \citet{training-svd-regularized} propose to optimize weights of both dense layers and (reshaped) convolutional layers in their SVD by regularizing $U$ and $V$ to be approximately orthogonal through loss terms like $\|UU^\intercal-I\|_F^2$.
 \citet{convolution-tensor-decomposition} also propose a multi-linear tensor decomposition of convolutional filters to achieve efficient low-rank convolutional kernels that can be trained in an end-to-end fashion.
@@ -463,17 +463,18 @@ Given a long sequence of samples $x_1, ..., x_t\in\mathbb{R}^{m}$, recurrent neu
 For such computations, gradient computations become very ``long,'' which can result in vanishing or exploding gradients if $W$ and $\sigma$ are not norm preserving.
 Orthogonal matrices are norm preserving, \ie, $\|Ux\|_2 = \|x\|_2$, and constitute central building blocks for avoiding exploding (or vanishing) gradients.
 To the best of our knowledge, \citet{urnn} were the first to parameterize orthogonal matrices for RNNs through a product of cleverly chosen low memory footprint and efficient complex unitary matrices, such that $Wx_i$ can be evaluated in $O(d \log d)$ time.
-However, the resulting orthogonal matrices are still limited in what they can express. 
+However, the resulting orthogonal matrices are limited in what they can express. 
 Informally, this is due to a limited $O(d)$ free parameters of the complex matrices.
 Successively, \citet{hh-rnn} proposed to instead parametrize the orthogonal matrix with $O(d)$ Householder matrices to parametrize the $W$s in RNNs with $O(d^2)$ parameters. 
 \citet{sequential} further utilize a Householder parametrization to form an SVD of $W$ where the singular values are restricted to be close to one, \ie, $\Sigma_{i,i} \in [1\pm\varepsilon]$ for $\varepsilon > 0$. 
 As described, \cite{sequential} presents both a sequential and a parallel algorithm for evaluating the Householder parametrization.
 For an input $X\in\mathbb{R}^{d\times m}$, evaluating $WX$ sequentially has an $O(d^2m)$ time complexity, but is slow in practice, while the parallel algorithm is faster in practice, but has an $O(d^3)$ time complexity. 
+\todo{Make sure that these bounds are actually correct. I suspect that they need to be at least $O(d^3\log d + d^2m)$.}
 With FashH, we present a new algorithm, which shares the $O(d^2m)$ time complexity, while being up to six times faster than the parallel algorithm.
 It should also be mentioned that concurrent with \paperref{pap:svd}, \citet{cwy-dec} also notice the gap between the sequential and parallel algorithm and present another parallel algorithm for evaluating Householder products using a related CWY decomposition, which relies on matrix inversion that takes $O(d^3)$ time.
 
 Another area, where orthogonal matrices are employed, is for Normalizing Flows where, \eg, determinant computations of weight matrices can be needed~\cite{glow}.
-As a way of parametrizing square matrices such that their determinants can be computed efficiently, \citet{emerging} propose to utilize the QR decomposition $W = QR$, where $Q\in\mathbb{R}^{d\times d}$ is an orthogonal matrix parametrized by the Householder decomposition described in Equation \eqref{eq:hh-decomposition} and $R\in\mathbb{R}^{d\times d}$ is a triangular matrix.
+As a way of parametrizing square matrices such that determinants can be computed efficiently, \citet{emerging} propose to utilize the QR decomposition $W = QR$, where $Q\in\mathbb{R}^{d\times d}$ is an orthogonal matrix parametrized by the Householder decomposition described in Equation \eqref{eq:hh-decomposition} and $R\in\mathbb{R}^{d\times d}$ is a triangular matrix.
 In such decomposition, the determinant computation has $O(d)$ time complexity because $det(W) = det(Q) \cdot det(R) =1 \cdot  \prod_{i=1}^d R_{i,i}$. 
 In \cite{emerging}, they employ a sequential algorithm for the householder decomposition and could gain a practical speedup by using FastH. 
 
@@ -490,7 +491,7 @@ From the observation that there is a gap between the slow (in practice) $O(d^2m)
     Given $X\in \mathbb{R}^{d\times m}$ and $v_1, ..., v_d \in \mathbb{R}^{d}$, can we evaluate $\left[ \prod_{i=1}^d I-2\frac{v_iv_i^\intercal}{\|v_i\|_2^2}\right]X = \left[\prod_{i=1}^d H_i\right]X$ in $O(d^2m)$ time with less than $O(d)$ sequential matrix-matrix operations?
 \end{problem}
 
-The short answer i ``yes,'' FastH computes the Householder product in $O(d^2m)$ time while using $O(d/t) + t$ sequential operations, where $t$ is an intermediate result size, as presented next.
+The short answer i ``yes,'' FastH computes the Householder product in $O(d^2m)$ time while using just $O(d/t) + t$ sequential operations, where $t$ is an intermediate result size, as presented next.
 
 FastH increases parallelism by grouping Householder products into intermediate results $G_j$ representing products of $t$ Householder matrices in a convenient decomposition which allows computing $G_jX$ fast. 
 The core insight needed to form our algorithm is a result dating back to 1987~\cite{wydec}.
@@ -506,7 +507,7 @@ FastH computes the Householder product $H_1H_2...H_dX$ through two steps.
 
 % \paragraph{Step 1.}
 \begin{description}
-\item[Step 1:] The product is split into $d/t$ groups for which the decomposition of each group is computed in parallel.
+	\item[Step 1:] The product is split into $d/t$ groups for which the decomposition from Lemma \ref{lem:wydec} of each group is computed in parallel.
 \newcommand{\veq}{\mathrel{\rotatebox{90}{$=$}}}
 \begin{equation}
     \begin{matrix}
@@ -521,7 +522,7 @@ FastH computes the Householder product $H_1H_2...H_dX$ through two steps.
 
 With Lemma \ref{lem:wydec} at hand, we analyze the time complexity of FastH.
 In step 1, there are $d/t$ groups requiring an $O(dt^2)$ computation each, yielding an $O(d^2t)$ time complexity.
-In step 2, there are $d/t$ groups, where two matrices of size $t\times d$ are multiplied with the input of size $d \times m$ in $O(tdm)$ time, leading to an $O(d^2m)$ total time complexity.
+In step 2, there are $d/t$ groups, where two matrices of size $t\times d$ are multiplied with the input of size $d \times m$ in $O(tdm)$ time, leading to an $O(d/t \cdot tdm) = O(d^2m)$ total time complexity.
 As a result, FastH shares the $O(d^2m)$ running time with the sequential algorithm from \cite{sequential}.
 
 To analyze how many sequential operations are needed for FastH, we again consider the two steps.
@@ -530,7 +531,7 @@ Step 2 on the other hand needs to multiply $X$ with each group sequentially, yie
 This leads to a total of $O(t + d/t)$ sequential matrix-matrix opreations, as compared to the $O(d)$ sequential matrix-vector operations in \cite{sequential}. 
 
 We note that some details have been left out in the above description of FastH. 
-In \paperref{pap:svd}, we also present an algorithm for performing gradient computations as efficient as the ``forward computations.''
+In \paperref{pap:svd}, we, \eg, present an algorithm for performing gradient computations as efficient as the ``forward computations.''
 We also provide CUDA code, such that our algorithm can run efficiently on GPUs.
 
 \section{Backpropagating through Fr\'echet Inception Distance\contribution{pap:fastfid}} \label{sec:fid}
