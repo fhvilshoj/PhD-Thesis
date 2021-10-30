@@ -242,11 +242,11 @@ Thanks to \todo{\dots}
 \cleardoublepage
 \chapter*{{\Huge Preface}}
 This PhD thesis is written to follow the PhD rules and regulations of the Graduate School of Natural Sciences~\cite{au-regulations}. 
-As described in \S 11.1 in \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
+As described in \S 11.1 of \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
 This thesis follows such structure by including four papers with individual introductions.
 The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
-To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, we have annotated section titles relating directly to specific papers with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
-If you are reading the thesis on a computer, the symbol is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
+To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, section titles relating directly to specific papers have been annotated with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
+If you are reading the thesis on a computer, the annotation is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
 
 We include the following four papers in this thesis.
 \begin{description}
@@ -255,14 +255,6 @@ We include the following four papers in this thesis.
     \item[\paperref{pap:ecinn}:] \cite{ecinn} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. ECINN: efficient coun-terfactuals from invertible neural networks. In BMVC, 2021. 
     \item[\paperref{pap:evaluation}:] \cite{evaluation} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. On Quantitative Evaluations of Counterfactuals. CoRR, abs/{\color{red}XXX, 2021. URL \url{https://arxiv.org/abs/XXX}}.
 \end{description}
-
-% This thesis includes four papers:
-% \begin{itemize}
-%     \item \paperref{pap:svd} \cite{fasth}: What if Neural Networks had SVDs? \emph{NeurIPS 2020, spotlight}
-%     \item \paperref{pap:fastfid} \cite{fid}
-% \end{itemize}
-
-\todo{Describe that we present four papers and whether they are published or manuscripts.}
 
 \cleardoublepage
 
@@ -285,14 +277,15 @@ We include the following four papers in this thesis.
 \chapter{Introduction} 
 % % % % % DRAFT % % % % % % % %
 % Consider the images in Figure \ref{fig:biggan-samples}. 
-In Figure \ref{fig:biggan-samples}, we have displayed an image of a dog and a launching rocket. 
+In Figure \ref{fig:biggan-samples}, we display an image of a dog and a launching rocket. 
 You probably identified the content of the two images immediately. 
 Imagine that you had to ``tell a computer'' how to identify what such images contain.
-As computers represent images as large tables of numbers, this is a hard task.  
+Since computers represent images as large tables of numbers, this is a hard task.  
 Perhaps you can, \eg, identify why you think that the rocket is launching; had there not been all the smoke and the glare of light, the rocket would not have been launching.
 However, converting such insights into a ``recipe'' (algorithm) for the computer to follow is almost impossible.
 The field of machine learning has obtained astonishing results by turning the problem upside down.
-Instead of explicitly describing an algorithm for the computer to follow, machine learning algorithms are designed to dig through tons of images to derive an algorithm which the computer can successively use for guessing what is in the images, sometimes even performing better than humans can. 
+Instead of explicitly describing an algorithm for the computer to follow, machine learning algorithms are designed to dig through tons of images to derive an algorithm which the computer can successively use for guessing what is in the images. 
+Such algorithms sometimes even surpass human performance. 
 
 \begin{figure}
     \centering
@@ -305,28 +298,29 @@ The machine learning approach is immensely powerful and has been extended to all
 Did you, \eg, notice that the images in Figure \ref{fig:biggan-samples} are ``fake''? 
 The images are artificial and depict a dog and a rocket which never existed.
 To generate such images, a machine learning algorithm dug through more than a million images to devise an algorithm for synthesizing ``fake'' images that look realistic. 
-At the time of writing, neural networks are perhaps the most employed machine learning models. 
+At the time of writing, neural networks are perhaps the most employed machine learning models due to their high performance. 
 It is, \eg, a neural network that generated the images in Figure \ref{fig:biggan-samples}. 
 
 Although neural networks are powerful and can solve a wide range of tasks, such networks also come with certain drawbacks.
 First, digging through tons of data requires a lot of compute, typically on very expensive hardware.
-Some neural networks were, \eg, trained for several days~\cite{alexnet, alphafold} or even weeks on \$100+ million hardware.\footnote{A very recent blog post from NVIDIA describes a generative model with 530 billion parameters trained for at least 35 days on 560 machine learning servers at an individual price of $\sim$\$200.000~\cite{nvidia-bigass-mofo}.}
-Today, most major performance improvements stem from larger datasets or larger neural networks, see (\eg, ~\cite{gpt-3}).
-As a consequence, if one can derive faster machine learning algorithms, then neural networks can be improved by increasing the amount of data used or by increasing the size of the networks, without increasing the computational budget.
-Second, the resulting algorithms that can, \eg, identify dogs and rockets in images, come with no direct way of reasoning. 
-For example, it is not straight forward how to get a counterfactual reasoning similar to how we did with the smoke and the glare of the rocket above.
+For example, Some neural networks were trained for several days~\cite{alexnet, alphafold} or even weeks on \$100+ million hardware.\footnote{A very recent blog post from NVIDIA describes a generative model with 530 billion parameters trained for at least 35 days on 560 machine learning servers at an individual price of $\sim$\$200.000~\cite{nvidia-bigass-mofo}.}
+Today, most major performance improvements are obtained by increasing dataset or network sizes, (see, \eg, ~\cite{gpt-3}).
+As a consequence, if one can derive faster machine learning algorithms, then neural networks can be improved without increasing the computational budget.
+The second issue with neural networks is that the resulting algorithms that can, \eg, identify dogs and rockets in images, make predictions without any reasoning.
+For example, it is not straight forward how to get a counterfactual reasoning similar to how we did with the removal of smoke and glare of the rocket image above.
 Even though a neural network may correctly guess, \eg, the content of an image, it is typically hard to tell \emph{why} the network guessed as it did.
-Being able to tell \emph{why} could, \eg, enable us to validate the behavior of machine learning models used to automatically judge humans, to ensure a fair judgement.
+Being able to tell \emph{why} could, \eg, enable us to validate the behavior of neural networks used to automatically judge humans, to ensure a fair judgement.
 
 This thesis revolves around those two issue, \ie, how can we speed up machine learning algorithms, and how can we reason about \emph{why} particular predictions were made by neural networks? 
 As a motivation for answering the latter question, we observe that when humans explain their behavior, they typically ``generate evidence'' that support their choices.
 For humans, such evidence could, \eg, be an emphasis on specific existing knowledge or a presentation of a hypothetical alternative reality for which their behavior would be different.
 In any case, the evidence need to be generated somehow.
-Generating such evidence seems well aligned with the capabilities of generative models, like the one generating the images in Figure \ref{fig:biggan-samples}. 
+Generating such evidence for neural network algorithms seems well aligned with the capabilities of neural networks that generate ``fake'' data, like the one generating the images in Figure \ref{fig:biggan-samples}, which are also known as generative models. 
 As a consequence, we form the main hypothesis of this thesis:
 %
 \begin{quote}
     We hypothesize that crossing generative models with explainability can produce state-of-the-art methods for explaining neural networks. 
+    \todo{Explainability have not really been introduced}
 \end{quote}
 %
 This thesis sheds light on the hypothesis by considering three research questions:
@@ -335,8 +329,7 @@ If our hypothesis holds, we believe that the performance of methods for explaini
 In turn, it makes sense to also improve the performance of generative models.
 Improving training efficiency of machine learning algorithms will allow scaling up datasets or model sizes, which may yield better generative models. 
 Further down-stream, better generative models potentially improve explainability methods.
-%
-In Chapter \ref{chap:nns}, we present two novel algorithms that compute already established quantities within generative modelling, but much faster than existing algorithms.  
+In Chapter \ref{chap:nns}, we present two novel algorithms that compute already established quantities used for generative modelling, but much faster than existing algorithms.  
 
 \paragraph{RQ2:} \emph{How can generative models be utilized for explaining neural networks?}\\
 At the heart of our main hypothesis, we consider how to utilize generative models within the field of explainability.
@@ -345,23 +338,7 @@ In Chapter \ref{chap:ecinn-main}, we present a novel method for generating such 
 
 \paragraph{RQ3:} \emph{How are methods for explaining neural networks best evaluated?}\\
 To identify state-of-the-art methods, proper evaluation metrics need to be established.
-In Chapter \ref{chap:evaluation}, we analyze and experimentally evaluate existing metrics for quantifying the performance of counterfactual examples before introducing two new metric to accompany the existing suite of metrics. 
-
-% IMPROVING TRAINING ALGORITHMS
-% 1. Generative models are expensive to train
-% 3. Bigger models seem to perform better. 
-% 2. Can we train them faster, then we can get bigger models.
-% 4. We developed two algorithms for training generative models faster.
-% 5. Arguably, better generative models will yield better explanations further down stream.
-
-% EXPLAINING NEURAL NETWORKS
-% 1. We demonstrate how to analytically generate  explanations like the one with glare and smoke from above
-% 2. ECINN is one of now multiple examples that demonstrate how generative models are very beneficial in terms of explaining neural networks.
-% 2. We further the field quantitatively evaluating counterfactual explanations.
-
-
-
-
+In Chapter \ref{chap:evaluation}, we analyze and experimentally evaluate existing metrics for quantifying the performance of counterfactual examples before introducing two new metric to avoid drawbacks of existing metrics. 
 
 % \section{Contributions}
 % +++   0.5 pages summarizing the thesis and our contributions. 
@@ -382,53 +359,56 @@ In Chapter \ref{chap:evaluation}, we analyze and experimentally evaluate existin
 Neural networks can be found solving a variety of problems from classifying malignant breast tumors~\cite{cancer} to generating ``fake'' molecular compounds~\cite{chem-gan}. 
 However, such remarkable performances come at a high computational cost.
 For example, up to 512 highly specialized and very costly Tensor Processing Units were used to train a single model for up to 48 hours \cite{biggan}. 
-Furthermore, there is trend showing that larger models (more parameters) perform better~\cite{language-models-few-shot, scaling-matters}.
+Furthermore, there is a trend indicating that larger models (more parameters) perform better~\cite{language-models-few-shot, scaling-matters}.
 In turn, improving algorithms to allow even larger models to be trained within the same computational budget can have huge impacts in terms of better performance.
 Finally, we have a strong belief that as a consequence of improved performances of especially generative models, better methods within explainability will also emerge further down-stream.
 
-In this chapter, we present two papers which revolves around more efficient computations of central components for neural networks.
+In this chapter, we present two papers which revolve around more efficient computations of central components for neural networks.
 The first paper, \paperref{pap:svd}, is introduced in Section \ref{sec:svd} and was published at NeurIPS 2020 as a spotlight paper.
 It introduces a fast algorithm for computing Householder products, which can be used to efficiently representing neural network weights in their Singular Value Decomposition (SVD) during training.
-The second paper, \paperref{pap:fastfid}, is a manuscript and is presented in Section \ref{sec:fid}. 
-It presents a new algorithm for computing the Fr\'echet Inception Distance (FID) fast for small batches.
-With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible to do because of too costly computations. 
-Finally, we devote Section \ref{sec:nn-discussion} to discussing the high-level impacts of the two papers. 
-% Prior to this paper, the FID was an ill fit for a training loss due to high amounts of computation.
+The second paper, \paperref{pap:fastfid}, is a manuscript presented in Section \ref{sec:fid}. 
+The paper presents a new algorithm for computing the Fr\'echet Inception Distance (FID) fast for small mini-batches.
+With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible because of too costly computations. 
+Finally, we devote Section \ref{sec:nn-discussion} to discussing the impacts of the two papers. 
 
 \section{What if Neural Networks had SVDs?\contribution{pap:svd}} \label{sec:svd}
 % +++ 1 page on motivating the problem, e.g., with a couple of examples of where it makes sense.
-In this section, we first give a brief introduction to the problem thar our algorithm solves and the high-level contributions of our paper, before putting it into context of related work. Successively, we present applications for which our algorithm improves computational efficiency.
-At the end of this section, we also give more details on the details of our algorithm.
+In this section, we first give a brief introduction to the problem thar our algorithm solves and the high-level contributions of our paper, before putting it into context of related work. 
+Successively, we present applications for which our algorithm improves computational efficiency.
+At the end of this section, we also give more details on our algorithm.
 % TODO Make sure introduction is right.
 
 % 1. Present at a high level what FastH does. Not the technical part but just the result.
-During training, many neural networks need to perform time-consuming operations like, \eg, matrix inversions and determinant computations of weight matrices~\cite{nice, realnvp, glow}.
+During training, many neural networks need to perform time-consuming operations like, \eg, matrix inversions, spectral normalization, and determinant computations of weight matrices~\cite{nice, realnvp, glow, sngan}.
 A standard implementation of, \eg, the matrix determinant $det(W)$ for $W\in\mathbb{R}^{d\times d}$ typically takes $O(d^3)$ time, which for a large $d$ may constitute a bottleneck in the overall training time. 
-As such, finding a way to decrease such computation times will allow using larger weight matrices within the same computational budget.
-
+As such, finding a way to speed up determinant computations will allow using larger weight matrices within the same computational budget, thus obtaining larger neural networks.
 One way to decrease computation time is to represent weights $W$ in their SVD, $W = U\Sigma V^\intercal$ where $U, V \in \mathbb{R}^{d\times d}$ are orthogonal, \ie, $U^{-1} = U^\intercal$ and $V^{-1}= V^\intercal$, and $\Sigma\in \mathbb{R}^{d\times d}$ is a diagonal matrix. 
-In such decomposition, computing the determinant of $W$ takes just $O(d)$ time, $det(W) = det(U\Sigma V^\intercal) = det(\Sigma) = \prod_{i=1}^d \Sigma_{i,i}$.
+In such decomposition, computing the determinant of $W$ takes just $O(d)$ time, $det(W) = det(U\Sigma V^\intercal) = det(U)det(\Sigma)det(V^\intercal) = 1\cdot \prod_{i=1}^d \Sigma_{i,i} \cdot 1$.
 It is, however, not straight forward to optimize $U$ and $V$ in such representation.
-An immediate issue is that doing gradient updates on $U$ and $V$ will generally not keep the matrices orthogonal.
-To circumvent this issue, \citet{sequential} propose to parameterize each orthogonal matrix as a composition of $d$ Householder matrices $H_i$ that are represented by one $d$-dimensional vector $v_i$ each:
+An immediate issue is that doing gradient updates on $U$ and $V$ directly is not guaranteed to maintain the orthogonality of $U$ and $V$.
+To circumvent this issue, \citet{sequential} propose to parameterize each orthogonal matrix as a composition of $d$ Householder matrices $H_i$ that are stored as $d$-dimensional vector $v_i$:
 \begin{equation}\label{eq:hh-decomposition}
     V = \prod_{i=1}^d H_i, \qquad H_i = I - 2\frac{v_i v_i^\intercal}{\| v_i \|_2^2}.
 \end{equation}
-In Equation \ref{eq:hh-decomposition}, each $H_i$ is orthogonal, which makes $V$ orthogonal as well. Furthermore, any $d$-dimensional orthogonal matrix can be represented by such decomposition~\cite{uhlig2001constructive}. 
-The parameterization makes gradient descent posible by preserving the orthogonality of $U$ and $V$ during optimizations, while the matrix product $WX = U \Sigma V^\intercal X$ can be evaluated in $O(d^2m)$ for a matrix $X\in\mathbb{R}^{d\times m}$, similar to regular matrix multiplication. 
+In Equation \ref{eq:hh-decomposition}, each $H_i$ is orthogonal, which makes $V$ orthogonal as well. 
+Furthermore, any $d$-dimensional orthogonal matrix can be represented by such decomposition~\cite{uhlig2001constructive}. 
+The parameterization makes gradient descent posible by preserving the orthogonality of $U$ and $V$ during optimizations, while the matrix product $WX = U \Sigma V^\intercal X$ can be evaluated in $O(d^2m)$ for a mini-batch of $m$ samples $X\in\mathbb{R}^{d\times m}$, similar to regular matrix multiplication. 
 There is, however, a catch.
 The decomposition is inherently sequential. 
-That is, to evaluate $WX$, one must compute $O(d)$ sequential matrix-vector operations.\footnote{We distinguish matrix-vector and matrix-matrix operations because GPUs are highly parallel and much more efficient on matrix-matrix operations. Matrix-matrix operations are thus preferred.}
-Specifically, for both $U$ and $V$, $H_1(H_2(...(H_dX) ...))$ needs to be computed sequentially, as indicated by the parenthesis.
+That is, to evaluate $WX$, one must compute $O(d)$ sequential matrix-vector operations, which is ill-fit for GPUs.\footnote{We distinguish matrix-vector and matrix-matrix operations because GPUs are highly parallel and much more efficient on matrix-matrix operations. Matrix-matrix operations are thus preferred.}
+Specifically, for both $U$ and $V$, $H_1(H_2(...(H_dX) ...))$ is computed sequentially, as indicated by the parenthesis.
+We will denote this approach the ``sequential algorithm'' from this point on.
 As most machine learning models today are trained on highly parallel hardware like GPUs, sequential algorithms are typically slow, as compared to parallel algorithms.
 
 \citet{sequential} notice that the sequential algorithm is slow. 
 As a consequence, they suggest an additional algorithm based on matrix-matrix products, which is more parallel and thus a better fit for GPUs. 
 The algorithm first constructs the orthogonal matrices $U$ and $V$ by multiplying together $H_1, ..., H_d$, before evaluating $WX = U\Sigma V^\intercal X$.
-Without any further utilization of the Householder structure in Equation \eqref{eq:hh-decomposition}, such algorighm takes $O(d^3)$.
-Even if the Householder matrices are paired to compute $P_j = H_{j*2}H_{j*2+1}$ for $j=1, ..., d/2$ in parallel to form $d/2$ orthogonal $d\times d$ matrices in $O(d^2)$ time due to Equation \eqref{eq:hh-decomposition}, the asymptotic running time of multiplying the $P_j$s is $O(d^3)$, which is no faster than computing the SVD in the first place.
+Without any further utilization of the Householder structure in Equation \eqref{eq:hh-decomposition}, such algorighm takes $O(d^3)$ time and still entails $O(d)$ sequential steps.
+From this point on, we denote this algorithm the ``parallel algorithm.''
+Due to increased parallelization, the parallel algorithm is faster than the sequential in practice, even though it is less efficient asymptotically.
+Even if the Householder matrices are computed in a tree structure $U = (...((H_1H_2)(H_3H_4))...(H_{d-1}H_d)...)$ to obtain $O(\log d)$ sequential steps, the asymptotic running time of multiplying the higher level $d\times d$ matrices will entail an $O(d^3\lg d)$ runningtime, which is not even as faster as computing the SVD in $O(d^3)$ time in the first place.
+This raises an intriguing quiestion; can we compute $WX$ in the fast asymptotic running time $O(d^2m)$ with less than the $O(d)$ sequential work?  
 % multiplies the Householder matrices together first, which is more parallel, but takes $O(d^3)$ time, as fast as computing the $SVD$ in the first place, because at least $d/2$ $d\times d$ matrices must be multiplied together.
-Due to increased parallelization, the algorithm is faster than the sequential in practice, even though it is less efficient asymptotically.
 
 \paragraph{Contributions.} In \paperref{pap:svd}, we introduce a GPU friendly algorithm FastH, which computes the exact same Householder product and obtains the fast asymptotic running time $O(d^2m)$, while requiring only $O(t + d/t)$ sequential matrix-matrix operations for an adjustable group size $t$, as compared to $O(d)$ sequential matrix-vector computations used by the sequential algorithm.
 In practice, we find that FastH is up to 27 times faster than the sequential algorithm and six times faster than the parallel. 
