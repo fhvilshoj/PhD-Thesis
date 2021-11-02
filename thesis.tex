@@ -539,18 +539,18 @@ We also provide CUDA code, such that our algorithm can run efficiently on GPUs.
 % - FID is currently used primarily to evaluate generative models.
 % - If it is such a nice metric, shouldn't we be able to train with it directly?
 At the time of writing, unsupervised generative modelling is a vibrant field of research.
-Informally, generative modelling aims at designing models which can approximate a data distribution to generate \emph{fake} data points which are likely to stem from such distribution.
+Informally, generative modelling aims at designing models which can approximate a data distribution to generate \emph{fake} data points that are likely to stem from such distribution.
 Within this area, deep neural networks have been employed as building blocks for various types of generative models.
-To name but a few, Variational Auto-encoders (VAEs)~\cite{vae}, Generative Adversarial Networks (GANs)~\cite{gans}, Normalizing Flows~\cite{nice}, and recently Score-based generative models~\cite{sgm-stochastic-differential-equations} are some techniques based on neural networks.
+To name but a few, Variational Auto-encoders (VAEs)~\cite{vae}, Generative Adversarial Networks (GANs)~\cite{gans}, Normalizing Flows~\cite{nice}, and Score-based generative models~\cite{sgm-stochastic-differential-equations} are some techniques based on neural networks.
 
 As not all types of generative models are based on likelihood, a direct comparison of their performance is not trivial.
 Perhaps the most established way of evaluating generative models for images across model types is the Fr\'echet Inception Distance (FID)~\cite{fid, fid-comparison}. 
 The FID is proposed as a way of approximating how distant two distributions are, given samples from the two distributions. 
 In this context, the two distributions are the \emph{real} data distribution $p(x)$ and the distribution of the \emph{fake} data $q(x)$ from the generative model.
-As the generative model tries to approximate the sampling process of $p(x)$, a lower FID is better.
-We hypothesize that explicitly minimizing FID as a loss will also yield a better validation FID.
+As the generative model tries to approximate the sampling process of real data distribution, a lower FID is better.
+We hypothesize that explicitly minimizing FID as a loss will yield a better validation FID.
 The purpose of \paperref{pap:fastfid} is to test this hypothesis.
-As we will show, computing FID at every training step is computationally too heavy.
+Computing FID at every training step with the original algorithm is computationally too expensive to be used in practice.
 With our new algorithm FastFID, we show how to compute the FID fast enough for it to be used as a loss function. 
 But first, we define the FID below.
 
@@ -563,20 +563,20 @@ Finally, the FID is the Fr\'echet distance (also known as the Wasserstein-2 dist
 \end{equation}
 \citet{fid} demonstrate how the FID correlate well with both human judgement and increasing disturbance, \eg, by adding increasing levels of noise. 
 
-When computing the FID, only $\mu_f$ and $\Sigma_f$ changes across different generative models.
+When computing the FID, only $\mu_f$ and $\Sigma_f$ change across different generative models.
 As such, much computation can be cut by computing encodings $A(r_i)$ and successively $\mu_r, \Sigma_r$ just once.
 In fact, \citet{fid} even share precomputed statistics for five popular datasets.\footnote{\url{https://github.com/bioinf-jku/TTUR}}
 But even then, the computational complexity of the FID is $O(d^3 + d^2m)$, where the first term stems from the matrix square root $\sqrt{\Sigma_r\Sigma_f}$ and the second term comes from computing $\Sigma_f$ from the encodings.
 
 To obtain a robust result, \citet{fid} compute the FID based on $n=m=10 000$ samples during training.
-It is time-consuming to both encode $10 000$ images and to computing the FID.
-For example, on an NVIDIA RTX 2080 Ti GPU, it took us roughly $20s$ to compute the FID; roughly $10s$ were spent on computing fake encodings and $10s$ on computing $\sqrt{\Sigma_r\Sigma_2}$.
+It is time-consuming to both encode $10 000$ images and to successively computing the FID.
+For example, on an NVIDIA RTX 2080 Ti GPU, it took us roughly $20s$ to compute the FID; around $10s$ were spent computing fake encodings and $10s$ on computing $\sqrt{\Sigma_r\Sigma_2}$.
 We hypothesize that such heavy computations have kept researchers from actively using the FID as a training loss. 
 This hypothesis raises an intriguing question. 
 Is it possible to compute the FID fast enough for it to be used as a training loss?
 
 \paragraph{Contributions.} 
-In \paperref{pap:fastfid}, we introduce FastFID; an algorithm which computes the FID on mini-batches (few fake samples, $m \ll d$) in $O(d^2m + m^3)$ time, up to three orders of magnitudes faster and with at least three orders of magnitude less numerical error than the original implementation of FID.
+In \paperref{pap:fastfid}, we introduce FastFID; an algorithm which computes the FID on mini-batches (few fake samples, $m \ll d$) in $O(d^2m + m^3)$ time, up to three orders of magnitudes faster and with at least three orders of magnitude less numerical error than the original algorithm for computing FID.
 We demonstrate how the algorithm is fast enough to be used for explicitly training GANs with FID as a loss function, resulting in better validation FID. 
 We further establish evidence that using the FID as a loss function yields fake samples of higher quality. 
 For example, generated fake images of a dog get new semantic features like eyes and ears. 
@@ -688,12 +688,12 @@ As such, we conclude that using FID as a loss function has great potentials in t
 With the FastH algorithm in \paperref{pap:svd}, we have introduced an algorithm which can be plugged directly into essential layers of Normalizing Flows to improve efficiency.
 Consequently, using FastH enables researchers to train larger models within the same time budges.
 FastH can also be used in GANs, where weight matrices can be parameterized in their SVD to allow efficient normalization of such weights.
-As scaling models up tends to yield better performances, we are optimistic that FastH can contribute to better performing models for both classification and generative modelling.
+As scaling models up tends to yield better performances, we are optimistic that FastH can contribute to better performing models.
 
 There are, however, some caveats. 
 For example, using the less efficient matrix exponential or the Cayley map to parametrize orthogonal matrices comes with the theoretical guarantee that no spurious minima will be introduced to the training dynamics~\cite{matrixexp1}.  
-Although Householder products can represent any orthogonal matrix, such guarantees are currently not known about the Householder products. 
-As such, researchers may prefer theoretical guarantees to speed, which can potentially limit the applicability of FastH.
+Although Householder products are expresive, such guarantees are currently not known about the Householder products. 
+As such, researchers may prefer theoretical guarantees over speed, which can potentially limit the applicability of FastH.
 
 With the FastFID algorithm, we have enabled researchers across all types of gradient based generative models to include the FID as an additional loss term, which can potentially improve the quality of the generated ``fake'' data.
 As such, we believe that the presented work constitutes an important step towards better performing generative models.
@@ -705,7 +705,7 @@ Backed by our experiment, we hypothesize that the discriminators of GANs ``detec
 This observation leaves best practices for applying the FID to generative models without discriminators as an open problem.
 
 As the main hypothesis of this thesis is that crossing research within explanations for neural networks with research within generative modeling has high potential, we continue to believe that both the presented algorithms can improve techniques within explainability further down-stream.
-We devote the next chapter to presenting multiple approaches for using generative models as central components for generating explanations for neural networks. 
+We devote the next chapter to presenting approaches for using generative models as central components for generating explanations for neural networks. 
 
 % While we tried applying FastFID to Normalizing Flows, which we use in the next chapter as a central component for an explainability method, we found that optimizing FID in this regard yields unrealistic fake samples.
 % Finding a way to improve NFs with the FID loss is thus a challenge left for future work. 
