@@ -219,7 +219,35 @@
 \cleardoublepage
 \chapter*{{\Huge Abstract}}
 \addcontentsline{toc}{chapter}{Abstract}
-\todo{Add an abstract}
+
+
+Neural networks keep increasing in complexity and can perform ever more challenging tasks.
+In some cases, neural networks can even classify images with higher accuracy than humans and even generate synthetic data for which the human eye can barely tell the difference from real data. 
+The high performance of such networks raises an intriguing and important question.
+How can we reason about the predictions made by such complex neural networks?
+This thesis revolves around this question.
+We focus on the task of generating counterfactual examples. 
+Counterfactual examples are alternatives to a given input, where such alternatives have the property that they have a different predicted outcome than the input.
+Being able to provide such counterfactual examples enable humans to better understand decisions made by neural networks.
+As an example, automatic screening systems based neural networks can be assessed for biases like skin color or gender discrimination. 
+% A rejected loan applicant can, \eg, be provided with counterfactual examples that show what to change to be granted a loan. 
+% Such examples could be ones where the income of the person is higher or the monthly expenses are lower.
+
+The main hypothesis of this thesis is that crossing generative neural networks, which can generate synthetic data, with the field of explainabilty can produce state-of-the-art methods for explaining neural networks.
+% Driven by our main hypothesize that state-of-the-art counterfactual methods can be  developed by using neural networks that generate realistic ``fake'' data as a part of the solution, we investigate multiple aspects of this hypothesis. 
+We investigate this hypothesis from multiple angles during.
+First, we consider how to improve the performance of generative neural networks, as it has the potential of improving methods for explaining neural networks further down-stream.
+We present two algorithms which performs central computations, used for optimizing such generative network, much faster than existing algorithms. 
+With faster algorithms, model complexities can be increased within the same computational budget, which has the potential of increasing performance of such models.
+Second, we consider how to use generative neural networks to generate counterfactual examples.
+We introduce an algorithm which is based on invertible neural networks.
+To generate a counterfactual example, our method needs only one forward and one reverse evaluation of the network.
+This is in start contrast to related work, which either needs to do expensive gradient optimizations, which requires hundreds of evaluations of the classifier, or needs to spend time training an external generative model.
+Finally, we investigate how to quantify the performance of methods for generating counterfactual examples. 
+We provide analytical and experimental insights into what properties existing quantitative metrics capture. 
+Based on our findings, we further introduce two new metrics, which mitigates some of the drawbacks of existing metrics. 
+
+
 
 \cleardoublepage
 \chapter*{{\Huge Resum\'e}}
@@ -231,7 +259,10 @@
 \chapter*{{\Huge Acknowledgments}}
 \addcontentsline{toc}{chapter}{Acknowledgments}
 
-Thanks to \todo{\dots}
+I wish to express a wholehearted \emph{thank you} to everyone who have been involved in or affected by my life as a PhD student.
+Thank you to my supervisors Ira Assent and Alexandros Iosifidis for superior help and guidance.
+Thank you to everybody in the Data Intensive Systems Group and the Madalgo group for vibrant discussions and great collaborations. 
+Finally, thank you to my friends and especially my family for your support and genuine interest in my research. 
 
 \vspace{2ex}
 \begin{flushright}
@@ -251,9 +282,9 @@ If you are reading the thesis on a computer, the annotation is a direct link to 
 We include the following four papers in this thesis. Except from superimposed headers and footers, all four papers are identical to those published at the mentioned conferences or on ArXiv.
 \begin{description}
     \item[\paperref{pap:svd}:] \cite{fasth} Alexander Mathiasen, Frederik Hvilsh\o j, Jakob R\o dsgaard J\o rgensen, Anshul Nasery, and Davide Mottin. What if Neural Networks Had SVDs? In NeurIPS, 2020.
-    \item[\paperref{pap:fastfid}:] \cite{fastfid} Alexander Mathiasen and Frederik Hvilshøj.  Backpropagating through Fr\'echet Inception Distance. CoRR, abs/2009.14075, 2020.  URL \url{https://arxiv.org/abs/2009.14075}.
-    \item[\paperref{pap:ecinn}:] \cite{ecinn} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. ECINN: efficient coun-terfactuals from invertible neural networks. In BMVC, 2021. 
-    \item[\paperref{pap:evaluation}:] \cite{evaluation} Frederik Hvilshøj, Alexandros Iosifidis, and Ira Assent. On Quantitative Evaluations of Counterfactuals. CoRR, abs/{\color{red}XXX, 2021. URL \url{https://arxiv.org/abs/XXX}}.
+    \item[\paperref{pap:fastfid}:] \cite{fastfid} Alexander Mathiasen and Frederik Hvilsh\o j.  Backpropagating through Fr\'echet Inception Distance. CoRR, abs/2009.14075, 2020.  URL \url{https://arxiv.org/abs/2009.14075}.
+    \item[\paperref{pap:ecinn}:] \cite{ecinn} Frederik Hvilsh\o j, Alexandros Iosifidis, and Ira Assent. ECINN: efficient coun-terfactuals from invertible neural networks. In BMVC, 2021. 
+    \item[\paperref{pap:evaluation}:] \cite{evaluation} Frederik Hvilsh\o j, Alexandros Iosifidis, and Ira Assent. On Quantitative Evaluations of Counterfactuals. CoRR, abs/2111.00177, 2021. URL \url{https://arxiv.org/abs/2111.00177}.
 \end{description}
 
 \cleardoublepage
@@ -840,7 +871,7 @@ An idea to further improve the loss function was presented by \citet{VanLooveren
 The additional term is $\theta \| \hat x - proto \|_2^2$, where $proto$ is the closest prototype to the original inputs encoding
 \begin{align}\label{eq:prototype}
 	proto_i &= \frac{1}{|X_i|}\sum_{x\in X_i} ENC(x)\\
-    proto &= \argmin_{proto_i: i \neq y} \| ENC(x) - proto_i\|_2.\\
+    proto &= \argmin_{proto_i: i \neq y} \| ENC(x) - proto_i\|_2.
 \end{align}
 The loss term is supposed to help guide both the ``prediction'' part of the loss by choosing the closest target class through $proto$ and to help the ``closeness'' by encouraging realistic counterfactuals by ensuring that the embedding of the counterfactual is close to the embeddings of the training data.
 Through experiments, \citet{VanLooveren2019} find that the additional loss term improves the quality of the counterfactuals as well as decreases the number of gradient steps needed.
@@ -860,10 +891,9 @@ For example, in \cite{VanLooveren2019}, they present average computation times p
 Imagining an interactive setting, where a user interacts with a system to understand the decisions of a machine learning model, thirteen seconds is too long to wait between each query.
 In \cite{card1991information}, they argue that $0.1$ seconds is the threshold that computation should stay below to work properly in an interactive setting.
 Conversely, the presented methods need little or no pre-computation before being applied to a model.
-In contrast, the approaches based on generative models, which we will present next, need to train generative models in advance, which can take days or even weeks, before the models can be used to explain the classifier.
+In contrast, the approaches based on generative models, which we will present next, typically generates counterfactual examples fast, but need to train generative models in advance.% , which can take days or even weeks, before the models can be used to explain the classifier.
 
 \subsection{Generative Model Approaches} 
-
 As argued in \cite{Rodriguez2021}, the gradient based iterative approaches suffers from optimizing counterfactuals in the image space.
 The issue is that optimizing traditional metrics like the $L1$ and $L2$ norms typically result in unrealistic changes to the inputs. 
 Although \cite{Dhurandhar2018} and \cite{VanLooveren2019} use auto-encoders to approximate closeness to the data distribution, they mainly compare counterfactuals in the image space.
@@ -882,7 +912,7 @@ Furthermore, they do not take advantage of the generating capabilities of the au
 % xGEM is very easy to describe, they assume that they have an implicite generative model $G$ with a latent space and use the loss
  
 Multiple works alleviate this issue by identifying latent codes of external generative models that result in realistic counterfactuals in the image space~\cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}.
-The general idea can be formulated as follows: 
+The general idea of all but~\cite{Singla2019} can be formulated as follows: 
 
 \begin{align}\label{eq:generator-cf}
     \hat z &= \argmin_{z\in \mathbb{R}^d} [ 
@@ -898,11 +928,12 @@ Both Variational auto-encoders and generative adversarial networks were used as 
 \citet{Rodriguez2021} propose to optimize latent vectors of a VAE and allow the decoder to generate the counterfactual examples.  
 The method works by initially training a $\beta$-TCVAE \cite{disentangle_vae}, which has been shown to perform well on disentangling its latent space.
 The VAE is successively frozen and used merely to translate between the image domain and the latent domain.
-As the VAE is disentangling its latent space such that different latent features affects different semantic image features, the latent space provides a good tuning nob for generating diverse counterfactual examples by individually tuning different latent features.
-To achieve diversity in their counterfactuals, \citet{Rodriguez2021} propose to simultaneously find $n$ latent codes $\{\epsilon_i\}_{i=1}^n$ for each input sample, such that $f(D( E(x) + \epsilon_i) ) = f(\hat x) \approx q$, where $E$ and $D$ are the encoder and decoder, respectively.
-The latent codes are optimized with a loss function that penalizes the latent codes for not being orthogonal, meanwhile being sparse.
+As the VAE is disentangling its latent space such that different latent features affect different semantic image features, the latent space provides good tuning nobs for generating diverse counterfactual examples by individually tuning different latent features.
+To achieve diversity in their counterfactuals, \citet{Rodriguez2021} propose to simultaneously find $n$ latent codes $z_i = E(x) + \epsilon_i$ for each input sample, where $E$ is the encoder of the VAE. 
+They optimize only the $\epsilon_i$s, such that $f(G( z_i ) ) = f(\hat x) \approx q$, where the decoder of the VAE is choosen as the generator $G$ in Equation \eqref{eq:generator-cf}.
+The latent codes are optimized with a loss function that encourages the $\epsilon_i$s to be sparse and orthogonal to each other, which yields visually diverse counterfactual examples.
 Although this method is also iterative as the methods above, it differs by utilizing the generative capabilities of the auto-encoder to find counterfactual examples through latent space optimizations.
-Judging by their experiments, they obtain counterfactual examples of high visual quality and further demonstrate superior performance on the Fr\'echet Inception Distance (FID), which we will discuss in the context of counterfactuals in the next chapter.
+Judging by their experiments, they obtain counterfactual examples of high visual quality and further demonstrate superior performance on the FID, which we will discuss in the context of counterfactuals in the next chapter.
 
 % GAN version: Singla2019
 Similar to how auto-encoders have been successful in the field of generative models, so have generative adversarial networks (GANs) \cite{gans}.
@@ -913,46 +944,58 @@ Typically, GANs are trained to produce images from random noise.
 However, in a counterfactual setting, where we want inputs and outputs to be related, such setup does not work. 
 To alleviate the issue, \citet{Singla2019} introduce an encoder model, which is trained to produce embeddings which the GAN then successively use for predicting counterfactuals. 
 % Consider abstracting the encoder away, as it is always unsed in conjunction with the generator. One might just think of the two as one composed network. It doesn't even have its own loss. 
-As with the previous approach, the method leverages the high generative performance of GANs to produce high quality counterfactual explanations.
-This yields another method which generates visually appealing counterfactual explanations rather efficiently, as they just need one pass through the encoder and the generator once to produce a counterfactual example, without any optimization steps.  
+The method leverages the high generative performance of GANs to produce high quality counterfactual explanations.
+To the best of our knowledge, this method is the only method that generates visually appealing counterfactual examples efficiently for images without any optimization at inference time. 
+% , as they just need one pass through the encoder and the generator to produce a counterfactual example, without any optimization steps.  
 In terms of the FID score, \cite{Singla2019} does not perform as well as \cite{Rodriguez2021}, but their performance held state-of-the-art when the paper was published.
 
-Recently, a method based on invertible neural networks have also been proposed.
-The method also follows \eqref{eq:generator-cf}, but uses a normalizing flow to generate counterfactuals. 
-In the paper, it is proved that for a well-trained normalizing flow,  the generated samples will approximately stay on the data manifold, due to their specific gradient optimization mechanism, which is a theoretical property that have not been proved for other methods.
+Recently, a method based on an external Normalizing Flows has also been proposed.
+The method also does optimizations that follow the structure in \eqref{eq:generator-cf}, but uses a normalizing flow as the generating function.
+In the paper, it is proved that for a well-trained normalizing flow, the generated samples will approximately stay on the data manifold, due to their specific gradient optimization mechanism, which is a theoretical property that have not been proved for other methods.
 In \paperref{pap:ecinn}, we also use a type of normalizing flows to produce counterfactuals. 
 As we will describe next, our approach is, however, fundamentally different. 
-We analyze conditional Normalizing Flows used as classifiers and derive a closed-form expression for producing unique counterfactuals efficiently, avoiding gradient optimizations and the use of a external generative model.
+We analyze conditional Normalizing Flows used as classifiers and derive a closed-form expression for producing unique counterfactuals efficiently, avoiding gradient optimizations and the use of an external generative model.
 
 % +++ 2 pages on our work.
 % \section{Counterfactuals from Normalizing Flows [contrinbution]}
 \section{Efficient Counterfactuals from Invertible Neural Networks\contribution{pap:ecinn}}\label{sec:ecinn}
-In the work of this thesis, we have proposed a third method, Efficient Counterfactuals from Invertible Neural Networks (ECINN), based on generative models, which avoids the drawbacks of both the iterative approaches and the generative approaches.
+\paragraph{Contributions.}
+We propose a novel method, Efficient Counterfactuals from Invertible Neural Networks (ECINN), based on conditional Normalizing Flows, which avoids the drawbacks of both the iterative approaches and the generative approaches.
 Specifically, ECINN has a close-form expression for producing a counterfactual, needing no iterative optimization algorithms, and it uses only the predictive model $f$, so it needs no additional training. 
 With ECINN, we obtain high quality explanations from just one forward pass needed to encode the input image and one backward pass needed to generate the counterfactual. 
 
-As mentioned, ECINN is based on invertible neural networks (INNs), which are also known as normalizing flows~\cite{realnvp, nice, glow}.
-INNs can be trained unsupervised to generate fake images with exact log-likelihood training, by approximating the data distribution $p(x)$.
+\paragraph{Method.}
+As mentioned, ECINN is based on invertible neural networks (INNs).
+Specifically, we utilize conditinoal Normalizing Flows~\cite{realnvp, nice, glow}.
+Normalizing Flows can be trained unsupervised to generate fake images with exact log-likelihood training, by approximating the data distribution $p(x)$.
 When properly trained, they can generate high quality images, similar to auto-encoders and GANs.
 As proposed by, \eg, \citet{ibinn}, INNs can also be trained as classifiers by approximating conditional densities $p(x | y)$.  
-In \paperref{pap:ecinn}, we choose $f$ to be conditional INNs and derive at closed form expression for generating counterfactual examples. 
+In \paperref{pap:ecinn}, we choose $f$ to be an INN trained as a conditional Normalizing Flow and derive at closed form expression for generating counterfactual examples. 
 
-At a high level, conditional INNs are trained by having an INN embed images into a latent space, where embeddings associated with each conditional class should have a high likelihood $p(x|y)$ according to a univariate Gaussian distribution corresponding to the class.
-We show that in the latent space, the posterior distribution $p(y|x)$ becomes simple, which allows us to analytically choose how to correct embeddings such that they are predicted to be of the target class $q$. 
-Inverting such corrected embeddings through $f^{-1}$ yields high quality counterfactuals. 
+At a high level, conditional Normalizing Flows are trained to embed data such that data from each conditional class is centered around a class-specific multivariate normal distribution. 
+% At a high level, conditional Normalizing Flows are trained by having an INN embed images into a latent space, where embeddings associated with each conditional class should have a high conditional likelihood $p(f(x)|y)$ according to a multivariate normal distribution associated with the conditional class.
+We show that in the latent space, the posterior distribution $p(y|x)$ simplifies, which allows us to analytically choose how to correct embeddings such that they are predicted to be of the target class $q$. 
+Inverting such corrected embeddings through $f^{-1}$ yields high quality counterfactual examples. 
 
 Let $g: \mathbb{R}^{d} \rightarrow \mathbb{R}^{d}$ be the INN under consideration (denoted $f$ in the \paperref{pap:ecinn}, but renamed to avoid notation overload here).
 Then the conditional likelihood becomes
 \begin{equation}\label{eq:conditional-likelihood}
-    p(x | y) = p_{Z|y}(g(x)) \cdot \left| det\left( J \right)\right|,
+    p(x | y) = p_{z|y}(g(x)) \cdot \left| det\left( J_{g(x)} \right)\right|,
 \end{equation}
-where $p_{z|y}(z) = \mathcal{N}(x; \mu_y, I)$ is a univariate Gaussian distribution and $J=\frac{\partial g(x)}{\partial x}$ being the Jacobian of $g$ evaluated at the input $x$. 
-Due to  Bayes' rule, we observe that the posterior probabilities are proportional to the Gaussian densities as the Jacobian determinants cancel, assuming that the prior distribution over classes is uniform: 
+where $p_{z|y}(z) = \mathcal{N}(x; \mu_y, I)$ is a normal distribution and $J_{g(x)}=\frac{\partial g(x)}{\partial x}$ is the Jacobian of $g$ evaluated at the input $x$. 
+Due to  Bayes' rule, we observe that the posterior probabilities are proportional to the Gaussian densities as the Jacobian determinants cancel, assuming that the prior distribution over classes is uniform, \ie, $p(y) = 1/K$: 
 \begin{align}\label{eq:proportional} 
-    p(y | x) &= \frac{p_{z|y}( g(x) ) \cdot \left| det\left( J \right)\right| \cdot \frac{1}{K}}{\sum_{y'} p_{z|y'}( g(x) ) \cdot \left| det \left(  J \right) \right| \cdot \frac{1}{K}}\\
+    p(y | x) &= \frac{p_{z|y}( g(x) ) \cdot \left| det\left( J_{g(x)} \right)\right| \cdot \frac{1}{K}}{\sum_{y'} p_{z|y'}( g(x) ) \cdot \left| det \left(  J_{g(x)} \right) \right| \cdot \frac{1}{K}}\\
+    &= \frac{\left| det \left( J_{g(x)} \right) \right| \cdot \frac{1}{K}}{\left| det \left( J_{g(x)} \right) \right| \cdot \frac{1}{K} \cdot \sum_{y'} p_{z|y'}( g(x) ) } \cdot p_{z|y}(g(x))\\
     &\propto p_{z|y}(g(x)).
 \end{align}
-As $p_{z|y}$ is normally distributed with unit variance, up to a constant, the log density becomes just the norm of the discrepancy between then mean of the Gaussian and the encoding, $\|\mu_y - g(x)\|_2^2$. 
+As $p_{z|y}$ is normally distributed with unit variance, maximizing the log density corresponds to minimizing the norm of the discrepancy between then mean of the normal distribution and the encoding: 
+\begin{align}\label{eq:log-gaussian}
+    \log p_{z|y}(z) &= \log\left[ \frac{1}{\sqrt{(2\pi)^d }} \exp\left\{-\frac{1}{2}(\mu_y-z)^\intercal(\mu_y-z)\right\} \right] \\
+    &= -\frac{d}{2}\log\left[2\pi\right] - \frac{1}{2}\|\mu_y-z\|_2^2\\
+    &= C - \frac{1}{2}\|\mu_y - z\|_2^2.
+\end{align}
+
 This relation has the immediate consequence that if we wish to find a latent vector, which, according to the model, is most likely to be from a particular class $q$, we would need the latent vector to be closer to $\mu_q$ than to any of the other mean values. 
 We use this insight to derive an algorithm for generating counterfactual explanations for this particular kind of predictive model. 
 
@@ -985,11 +1028,11 @@ The produced counterfactuals are shown to preserve semantic features that do not
         \textbf{Method}                                                 & \textbf{Fast}    & \textbf{Validity} & \textbf{High Quality}   & \textbf{Analytic}         \\
     \midrule                                                              
         Iterative \cite{Wachter2017, Dhurandhar2018, VanLooveren2019}   & \redcross        & \redcross         &  \redcross             & \redcross                 \\
-        Generative \cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}  & \greencheck      & -                 &  \greencheck           & \redcross                 \\
+        Generative \cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}  & (\greencheck)      & -                 &  \greencheck           & \redcross                 \\
         ECINN (\paperref{pap:ecinn})                                    & \greencheck      & \greencheck       &  \greencheck           & \greencheck               \\
     \bottomrule
     \end{tabular}
-    \caption{Overview of properties that different approaches for counterfactual methods have. (-) means that the property is not reported.}
+    \caption{Overview of properties that different approaches for counterfactual methods have. ``-'' means that the property is not reported and ``(\greencheck)'' means partly.}
     \label{tab:cf-method-comparison}
 \end{table}
 
@@ -997,31 +1040,32 @@ The produced counterfactuals are shown to preserve semantic features that do not
     % Pros // Cons
     % - Iterative: Needs no training and can be applied to any model, 
 When comparing different overall approaches for generating counterfactuals, there are multiple things to take into account.
-Naturally, the central objective of counterfactual explanations is to enable humans to better understand the decision-making process of a given classifier in the best possible way.
+Naturally, the central objective of counterfactual explanations is to enable humans to better understand the decision-making process of a given classifier.
 Here of, there are multiple properties to consider.
 We find the most important properties to be the quality and validity of the counterfactual methods, how fast they are, and whether the methods need additional optimizations or have analytical solutions.
 In the following, we discuss the three overall approaches in terms of the four properties.
 Table \ref{tab:cf-method-comparison} gives an overview of the properties.
 
-For counterfactuals to be applicable in an interactive setting, where users can interact with the model and associated counterfactual examples, computational efficiency is natural to consider.
+For counterfactuals to be applicable in an interactive setting, where users can interact with a model and its associated counterfactual examples, computational efficiency is natural to consider.
 %it is natural to consider how fast different methods can produce counterfactual explanations.
 Iterative methods are generally slow, as they need to do many gradient optimization steps to find a single counterfactual example.
 For example, it is reported for the iterative method described in \cite{VanLooveren2019}, that finding counterfactuals takes between $500$ and $5,000$ gradient steps, depending on the loss function. 
 They report inference times of between roughly 2 and 13 seconds, which is too slow to be applicable in an interactive setting.
-Although not reported for the GAN based method from \cite{Singla2019}, one must expect that inference times for the GAN, once trained, must be much faster, as it only needs one evaluation of the generator to generate a counterfactual example.
-Similarly, ECINN also needs just one forward and one backward pass to generate a counterfactual example.
+Although not reported for the GAN based method from \cite{Singla2019}, one must expect that inference times for the GAN, once trained, are fast, as the GAN setup only needs one evaluation of an encoder and a generator to generate a counterfactual example.
+While computation times are not explicitely reported, the VAE based methods from \cite{Rodriguez2021, Joshi2018} are still iterative and must be expected to be slower than the GAN base approach from \cite{Singla2019}.
+ECINN needs just one forward and one backward pass to generate a counterfactual example.
 In \paperref{pap:ecinn}, we find that it takes $0.003$ seconds on average to compute a counterfactual example, which is faster than a 60Hz frame rate, and in turn provide instant feedback to the user.
 
 For a counterfactual method to be useful, the proportion of samples that each method can explain, denoted validity in, \eg, \cite{Mothilal2020}, is also important.
 With a higher proportion of explained samples, the method will be able to provide more information for the user.
 Although not reported specifically, Table 4 in the supplementary material of \citet{VanLooveren2019} indicates that on average slightly more than half of the $10,000$ MNIST test images were successfully explained, which is roughly on par with what we find in \paperref{pap:evaluation}.
-For the papers based on generative models, we know of no concrete number, but expect that the proportion is likely to be higher than that of iterative methods, because of the application of more powerful generative models. 
+For the papers based on generative models, we know of no concrete number, but expect that the proportion is likely to be higher than that of iterative methods, due to the application of more powerful generative models. 
 With ECINN, one can prove a 100\% validity for binary labels, as counterfactuals are found analytically and no third class can disturb the results. 
 We find experimentally, that for multi-class datasets, the effectiveness is above 99\% (see \paperref{pap:evaluation}). 
 
 The third property relates to the quality of the counterfactuals.
 If image counterfactuals are to be useful, they need to convey realistic changes that are visible to humans.
-Quantifying the quality of counterfactuals is a whole topic to which we devote Chapter \ref{chap:evaluation}.
+Quantifying the quality of counterfactual examples is a topic to which we devote Chapter \ref{chap:evaluation}.
 Here, we restrict the discussion to qualitative properties.
 Most likely, much of the development around iterative methods has been driven by a common issue with the iterative models; visually, they tend to produce unrealistic changes (cf. row two and three in Figure \ref{fig:iterative-counterfactuals-copied}).
 In contrast, generative models have high generative capacities and produces more compelling counterfactual examples (cf. Figure \ref{fig:generative-counterfactuals-copied}).
@@ -1029,13 +1073,13 @@ As ECINN is also based on a variation of a generative model, the corresponding c
 In Figure \ref{fig:iterative-counterfactuals-copied} and Figure \ref{fig:generative-counterfactuals-copied}, we have included copies of figures from relevant publications to let the reader judge the quality of the generated counterfactuals by the different methods.
 For the generative models (Figure \ref{fig:generative-counterfactuals-copied}), multiple counterfactuals are generated with different predictions by the classifier (labels over images).
 Diversity in the counterfactuals improves the usefulness of the counterfactuals by conveying additional information about the decision space of the classifier~\cite{Rodriguez2021}.
-It would be simple to modify ECINN to produce any predefined predicted probability by analytically choosing the correct value of $\alpha$.
-However, for simplicity, we simply chose two values of $\alpha$ to produce tipping-point and convincing counterfactuals, as described above.
+We conjecture that it would be possible to modify ECINN to produce any predefined predicted probability $p(y|x)$ by analytically choosing the correct value of $\alpha$.
+However, for simplicity, we only chose two values of $\alpha$ to produce tipping-point and convincing counterfactuals, as described above.
 
 \begin{figure}
     \centering
-    \includegraphics[trim={67, 10, 0, 0}, clip, width=\textwidth]{graphics/celeba.pdf} 
-    \caption{First row is input images. Second to fourth row is counterfactual examples on the makeup vs. no makeup label, generated by \cite{Wachter2017}, \cite{VanLooveren2019}, and \paperref{pap:ecinn}, respectively. The first five columns converts people with makeup to people without, and vica versa for the last five columns.}
+    \includegraphics[trim={0, 10, 0, 0}, clip, width=\textwidth]{graphics/celeba.pdf} 
+    \caption{First row is input images. Second to fourth row is counterfactual examples on the makeup vs. no makeup label, generated by \cite{Wachter2017} (GB), \cite{VanLooveren2019} (GL), and ECINN (GEN), respectively. The first five columns converts people with makeup to people without, and vica versa for the last five columns. The figure is a direct copy of an old version of a figure from \paperref{pap:evaluation}.}
     \label{fig:iterative-counterfactuals-copied}
 \end{figure}
 \begin{figure}[b]
@@ -1058,11 +1102,11 @@ Of course, the analytical approach of ECINN comes at a cost.
 % Consequently, ECINN can also be applied to the powerful ResNet architecture, to potentially obtain both high performance on accuracy and high quality counterfactuals. 
 % 
 % There is an inherent drawback of ECINN, which should be mentioned.
-Our method only applies to conditional normalizing flows, where the other methods mentioned apply to any classification model $f$ which supports gradient computations.
-Recent work on normalizing flows~\cite{iresnet, ffjord, expl-inn} does, however, indicate that conditional normalizing flows can be extended to popular model architectures like ResNets~\cite{resnet} under mild model constraints. 
+Our method only applies to conditional Normalizing Flows, where the other methods mentioned apply to any classification model $f$ which supports gradient computations.
+Recent work on Normalizing Flows~\cite{iresnet, ffjord, expl-inn} does, however, indicate that conditional Normalizing Flows can be extended to popular model architectures like ResNets~\cite{resnet} under mild model constraints. 
 For example, \cite{iresnet} demonstrate that if the weights of a ResNet are normalized by their spectral norm, their inverse can be computated and Jacobian determinant estimated at the cost of a less efficient sampling process.
 Applying ECINN to such model architecture would most likely result in less efficient sampling of counterfactuals, but achieve better classification accuracies.
-\citet{expl-inn} further demonstrate how a modification of a ResNet architecture to make it invertible yields similar or slightly worse accuracies on ImageNet~\cite{imagenet}, but retains the efficient sampling procedure and well-structured latent space.
+\citet{expl-inn} further demonstrate how a modification of a ResNet architecture to make it invertible yields similar or slightly worse accuracies on ImageNet~\cite{imagenet} as compared to the original ResNet, but retains the efficient sampling procedure and well-structured latent space.
 As such, we are optimistic that ECINN can successfully be applied to more powerful and popular architectures.
     
 With ECINN, we have introduced a promising new direction of research within the field of counterfactual explanations. 
@@ -1078,23 +1122,22 @@ In the next chapter, we change the perspective from particular methods for produ
 % +++  1 page of introduction to the problem
 Central for the development of any field of research is practices for evaluating methods proposed within the field.
 For counterfactual examples, both ``objective'' and ``subjective'' methods have been proposed to evaluate different aspects of the generated examples~\cite{Stepin2021}.
-Objective methods are automatic corpus-based metrics, including, \eg, accuracy, number of features changed, and density estimates.
+Objective methods are automatic corpus-based metrics, including, \eg, accuracy and number of features changed.
 In contrast, subjective methods are based on human judgement like, \eg, relevance or interpretability, as judged by humans.
 As indicated by the name, objective metrics are beneficial because they can be applied objectively across different publications in order to quantify performance.
-As we demonstrate in \paperref{pap:evaluation}, objective metrics sometimes fail to distinguish good from bad counterfactual examples.
-The particular issue is likely also one of the reasons why subjective metrics have been proposed.
+As we demonstrate in \paperref{pap:evaluation}, objective metrics used for image counterfactuals sometimes fail to distinguish the good from the bad examples.
+% The particular issue is perhaps also one of the reasons why subjective metrics have been proposed.
 In this chapter, we focus on objective metrics for image counterfactuals and how well such metrics align with qualitative assessments of counterfactual examples. 
-\frederik{Make sure that this summary comply with the actual content} 
-We first give a high-level overview of properties that counterfactual examples should possess, and successively describe metrics that have been proposed in related work to quantify such properties in Section \ref{sec:existing-metrics}.
-Afterwards, we describe how we contribute with a deeper understanding of what properties existing metrics do and do not capture before introducing two new metrics which mitigates disadvantages of existing metrics in Section \ref{sec:evaluation-paper}.
+We first give a high-level overview over desired properties of visual counterfactual examples, before describing existing metrics that have been proposed in related work to quantify such properties in Section \ref{sec:existing-metrics}.
+Afterwards, we describe how we contribute with a deeper understanding of what properties existing metrics do and do not capture before introducing two new metrics that mitigates drawbacks of existing metrics in Section \ref{sec:evaluation-paper}.
 The chapter is concluded with a discussion in Section \ref{sec:eval-discussion}.
 
 \paragraph{Desired properties.}
 As formulated in \citet{Wachter2017}, counterfactual methods should find \emph{minimal} and \emph{necessary} changes to the input such that the predicted class changes.
 Also diversity among multiple counterfactuals for the same input is mentioned as being valuable.
-\citet{Mothilal2020} further describe validity, sparsity, proximity, and diversity as properties which good counterfactual examples should possess.
+For images, \citet{Mothilal2020} further describe validity, sparsity, proximity, and diversity as properties which good counterfactual examples should possess.
 Necessary changes are closely related to validity, while sparsity and proximity are concerned with minimal changes. 
-Below, we briefly describe the four properties from \cite{Mothilal2020}, which are afterwards used to categorize existing metrics below.
+Below, we briefly describe the four properties from \cite{Mothilal2020}, which are afterwards used to categorize existing metrics.
 
 \begin{description} 
     \item[Validity] is closely tied to necessary changes by accounting for whether the predicted class actually change. 
@@ -1104,10 +1147,10 @@ Below, we briefly describe the four properties from \cite{Mothilal2020}, which a
     
     \item[Sparsity] relates to how many features are changed from the input to the generated counterfactual.
     As argued in, \eg, \cite{Wachter2017} and \cite{Grath2018}, the sparsity of an explanation constitutes a proxy for how interpretable a counterfactual is, \ie, the more sparse the counterfactual change is, the more interpretable the counterfactual is. 
-    Depending on the domain, sparsity can be hard to quantify because sparse changes can relate to changing few semantic features rather than few features.
+    Depending on the domain, sparsity can be hard to quantify because sparse changes can relate to changing few semantic features rather than, \eg, few pixel values.
     
-    \item[Proximity] is closely related to sparsity and minimal changes, by considering how close generated counterfactuals are to the input.
-    According to \cite{Mothilal2020}, a counterfactual that is close to the input is most useful to the users, as is poses only small changes to the input.
+    \item[Proximity] is closely related to sparsity and minimal changes, by considering how close generated counterfactuals are to their associated input.
+    According to \cite{Mothilal2020}, a counterfactual that is close to the input can intuitively be most useful to the users.
     Quantifying proximity also depends much on the domain, as we will discuss in this chapter. 
     
     \item[Diversity] revolves around producing a diverse set of counterfactuals for each input.
@@ -1128,11 +1171,11 @@ In the following, we will also discuss such quantities.
 % characteristics of images, or other issues.
 % Then describe what has been done on images. 
 
-In this section, we describe some of the quantitative metrics that have been used to evaluate the performance of counterfactual methods.
-Although not all metrics fit perfectly into the properties listed above, we describe them in the context of such properties to give an idea of the properties that can be evaluated by existing metrics and which properties that cannot. 
+In this section, we describe some of the quantitative metrics that have been used to evaluate the performance of counterfactual methods proposed witihn the image domain.
+Although not all metrics fit perfectly into the properties listed above, we describe them in the context of such properties to give an idea of those that can be evaluated by existing metrics and those that still cannot. 
 
 \paragraph{Validity.}
-As mentioned, the proportion of successful counterfactuals generated, \ie, validity or target-class validity as denoted in \paperref{pap:evaluation}, is straight forward to quantify.
+As mentioned, the proportion of generated counterfactuals that successfully change the predicted class, \ie, the validity or target-class validity as denoted in \paperref{pap:evaluation}, is straight forward to quantify.
 Let $f$ be the classifier under consideration and $c: \mathcal{X} \rightarrow \mathcal{X}$ be the counterfactual method that produces a counterfactual example for inputs $x\in \mathcal{X}$ from some domain $\mathcal{X}$, then the target-class validity ($\operatorname{TCV}$) is defined as
 \begin{equation}\label{eq:tcv}
     \operatorname{TCV} = \frac{1}{|X|} \sum_{x \in X} \mathbb{1}_{[ f(x) \neq f( c(x) )]}, 
@@ -1142,17 +1185,21 @@ A larger $\operatorname{TCV}$ is better, as more counterfactuals successfully ch
 
 \paragraph{Sparsity.}
 Depending on the domain, sparsity can be hard to quantify.
-For tabular data with relatively few features or text, sparsity can simply be ``counted''~\cite{Kang2020, Laugel2018}. 
+For tabular data with relatively few features or for text, sparsity can simply be ``counted''~\cite{Kang2020, Laugel2018} to give an idea of the complexity of an explanation. 
 % If a sentence is altered to form a counterfactual sentence, then it can be of value to ``count'' how many words were changed to quantify how sparse the counterfactual example is~\cite{}.
-In the image domain, however, computing, \eg, the $L1$ distance between the input and the counterfactual to quantify sparse changes is of less use~\cite{Kang2020}. 
+In the image domain, it is harder to quantify sparsity in a meaningful way.
+In fact, we know of no publications within the image domain, that report sparsity.
+As an example of why sparsity can be less useful, \cite{one-pixel-attack} demonstrates how changing just one pixel in an image can be enough to change the prediction of a neural network.
+Such a change is sparse, but is most likely of little or no use to the end user.
+A more meaningful way of measuring sparsity in the image domain would be to quantify how many semantic features change between the input and the counterfactual.
+This is, however, not something that have been studied in the literature.
+% However, computing, \eg, the $L1$ distance between the input and the counterfactual to quantify sparse changes is of less use~\cite{Kang2020}. 
 % Again, adversarial attacks can obtain a low $L1$ distance without conveying any useful information to the user.
-For example, \cite{one-pixel-attack} demonstrates how changing just one pixel can be enough to change the prediction of a neural network.
-We know of no publications within the image domain, that report sparsity.
-Both $L1$ and $L2$ norms are, however, frequently used as a part of optimization losses, when generating counterfactual examples~\cite{VanLooveren2019, Dhurandhar2018, Wachter2017, Joshi2018, Singla2019}. 
+Although sparsity is not reported within the image domain, \eg, the $L1$ and $L2$ norms are frequently used as a part of optimization losses, when generating visual counterfactual examples~\cite{VanLooveren2019, Dhurandhar2018, Wachter2017, Joshi2018, Singla2019}. 
 
 \paragraph{Proximity.}
 For proximity, the ``distance'' from an input to a generated counterfactual needs to be quantified.
-In \cite{Mothilal2020}, proximity is measured by the average $L1$ distance normalized by the median absolute deviation of each feature (defined in Equation \ref{eq:MAD}) from the input to the counterfactual. 
+In \cite{Mothilal2020}, proximity is measured by the average $L1$ distance normalized by the median absolute deviation of each feature (defined in Equation \eqref{eq:MAD}) from the input to the counterfactual. 
 Notably, this relates closely to sparsity, which makes it unclear, what the mathematical distinction between the two is.
 \cite{Mothilal2020} highlights both sparsity and proximity as being important, but quantifies only sparsity.
 
@@ -1161,9 +1208,9 @@ Take the image domain as an example.
 In Figure \ref{fig:l2-example}, an image of a seven (left) is altered in two ways. 
 In the center image, the digit is rotated seven degrees and in the right image, the tip of the top line has been cut off.
 Perceptually, the center image is arguably more proximal to the input than the right image.
-However, according to the $L2$ norm, the right image is closer (more proximal).
-As such, using simple norms like the $L2$ norm to quantify proximity is inadequate.
-We hypothesize that similar observations can be done for other high-dimensional domains due to the curse of dimensionality.
+However, according to the $L2$ distance, the right image is closer.
+As such, using simple norms like the $L2$ norm to quantify proximity can be inadequate.
+We hypothesize that similar observations can be done for other high-dimensional domains.
 
 \begin{figure}
     \centering
@@ -1173,18 +1220,18 @@ We hypothesize that similar observations can be done for other high-dimensional 
 \end{figure}
 
 Both for image classification and many other high-dimensional tasks, it is generally believed that the data lies on a manifold of much lower dimension than the data dimension, see, \eg, \cite[Sec. 3.11.3]{Goodfellow-et-al-2016}.
-As a consequence, there exist metrics which tries to approximate such manifolds to quantify proximity on the manifold.
-A simple way of doing so is to train a variational auto-encoder (VAE)~\cite{vae} to embed the data in a low-dimensional space and then compute, \eg, the $L2$ norm in the embedding space.
+As a consequence, there exist metrics that try to approximate such manifolds to quantify proximity on the manifold.
+A simple way of doing so is to train a VAE to embed the data in a low-dimensional space and then compute, \eg, the $L2$ norm in the embedding space.
 For the example given in Figure \ref{fig:l2-example}, we trained a small VAE with three dense ReLU activated layers of 400 hidden dimensions in the encoder and decoder for 30 epochs with the ADAM optimizer~\cite{adam}.\footnote{Model architecture and training code: \url{https://github.com/singhgautam/vae-pytorch}}
 To keep things simple, we used only a random 15-degree rotation as data augmentation.
 We then encode the depicted sevens from Figure \ref{fig:l2-example} and compare the $L2$ norms of the encodings.
 In the embedding space, the center image has an $L2$ distance of $0.18$ to the input and the right image has $0.45$ which aligns better with the visual difference of the images.
 % 0.1801, device='cuda:0', grad_fn=<CopyBackwards>) tensor(0.4544, from https://colab.research.google.com/drive/1UCTbGouWF94fvLt2M8OyAeSuxLek1bXV#scrollTo=OAenf6EkzyGB
-The simple experiment hints that utilizing the high representational power of neural networks to compare counterfactuals may be valuable for evaluating proximity.
+This simple experiment hints that utilizing the high representational power of neural networks to compare counterfactuals may be valuable for evaluating proximity and potentially other properties.
 
 To the best of our knowledge, there exist only one work that quantifies proximity similarly as described above.
 Particularly, \citet{Rodriguez2021} use an oracle classifier trained on a related dataset (VGGFace2~\cite{vgg2faces}) to that being explained (CelebA~\cite{celeba}) and reported the cosine distances between embedded images.
-As the metric was not found to be used by other papers, we have not included it in \paperref{pap:evaluation}, but we highlight it here as a promising direction for quantifying sparsity.
+As the metric was not found to be used by other papers, we have not included it in \paperref{pap:evaluation}, but we highlight it here as a promising direction for quantifying proximity.
 
 It should also be mentioned that \cite{Rodriguez2021} present FID as a way of quantifying proximity.
 We do, however, argue that the FID does not quantify proximity as such.
@@ -1193,12 +1240,12 @@ In turn, shuffling counterfactuals, such that they become associated with differ
 As such, a counterfactual method may get a low FID by producing realistic counterfactuals that are not proximal to their associated inputs.
 Therefor, we cover FID in the ``Realistic counterfactuals'' paragraph below. 
 
-Finally, \citet{Singla2019} evaluate how sensitive different class labels are for the generated counterfactuals, \ie, how often the counterfactuals are predicted to be of the target class as opposed to other classes.
-Again, this relates to proximity by quantifying how other semantic features change, but is not presented as such in the paper. 
+Finally, \citet{Singla2019} evaluate how sensitive different predicted class labels are to the changes made by the counterfactual method, \ie, how often predicted classes of other class labels than the target class flips when the counterfactual is generated. 
+This relates to ``semantic proximity'' by quantifying how many semantic features change with the counterfactual, but is not presented as such in the paper. 
 
 \paragraph{Diversity.}
 As \citet{Mothilal2020} and \citet{Wachter2017} describe, diversity is important to convey more comprehensive information about the classifier being explained.
-Despite not necessarily mentioned explicitely, diversity is injected into multiple methods for generating counterfactual examples including our \paperref{pap:ecinn}~\cite{Joshi2018, Singla2019, Rodriguez2021}. 
+Despite not necessarily mentioned explicitly, diversity is injected into multiple methods for generating counterfactual examples including our \paperref{pap:ecinn}~\cite{Joshi2018, Singla2019, Rodriguez2021}. 
 However, there does not seem to exist any established metrics for quantifying diversity among counterfactuals.
 
 In \cite{Mothilal2020}, diversity is quantified as the average distance among pairs of counterfactuals generated for the same input. 
@@ -1212,14 +1259,17 @@ However, the score does not extend naturally to the image domain and is therefor
 
 \paragraph{Realistic counterfactuals.} 
 Another property that counterfactuals should possess is that they should be realistic.
-When the true causal structural models describing the data is known (typically only known for synthetic/toy examples), it is possible to quantify feasibility and the likelihood of counterfactual examples under the causal model~\cite{Mahajan2019}. 
-However, in a deep learning setting described with Problem Statement \ref{def:dl-counterfactual}, such metrics do not apply. 
-Instead, it is common to directly or indirectly approximate the distribution of the data to quantify the likelihood of the counterfactuals~\cite{VanLooveren2019, flowcounterfactuals, Singla2019, Rodriguez2021}.
+For images, realistic counterfactuals would ideally be images that end users cannot tell are synthetic. 
+As such property is hard to quantify, metrics that, \eg, relate to how likely the counterfactuals are to stem from the distribution that generated the training data are used as proxies. 
+Furthermore, when the true causal structural model describing the data is known (typically only known for synthetic/toy examples), it is possible to exactly quantify the likelihood of counterfactual examples under the causal model~\cite{Mahajan2019}. 
+However, in a deep learning setting described with Problem Statement \ref{def:dl-counterfactual}, exact likelihood computations under the true data-generating distribution is not possible. 
+Instead, it is common to directly or indirectly approximate the distribution of the data to quantify the (approximate) likelihood of the counterfactuals~\cite{VanLooveren2019, flowcounterfactuals, Singla2019, Rodriguez2021}.
 
-In the image domain, examples hereof are the $\operatorname{IM1}$ and $\operatorname{IM2}$ scores presented by \citet{VanLooveren2019} and the FID used in \cite{Singla2019, Rodriguez2021}. 
-As discussed in the previous chapter, \citet{flowcounterfactuals} further prove that their generated counterfactuals will approximately stay on the data manifold of the training data.
+In the image domain, examples of metrics that revolve around realistic changes are the two interpretability metrics $\operatorname{IM1}$ and $\operatorname{IM2}$ presented by \citet{VanLooveren2019} and the FID used in \cite{Singla2019, Rodriguez2021}. 
+As discussed in the previous chapter, \citet{flowcounterfactuals} further prove that their generated counterfactuals will approximately stay on the data manifold of the training data, which must be expected to generate more realistic counterfactual examples.
 
-With the $\operatorname{IM1}$ score, \citet{VanLooveren2019} intend to quantify how close counterfactuals are to the data manifold by the use of auto-encoders:
+Although presented as an interpretability metric in \cite{VanLooveren2019}, the authors describe how the $\operatorname{IM1}$ score approximate how close the counterfactuals are to the data manifold by comparing how well auto-encoders, trained on different subsets of the training data, reconstruct the counterfactuals. 
+The metric is defined as 
 \begin{equation} 
     \label{eq:IM1} 
   \operatorname{IM1}\left( x, p, q \right) = 
@@ -1240,6 +1290,8 @@ With a similar construction, but to quantify how interpretable counterfactual ex
 According to the authors, the intuition is that if the score is low, then the distribution of the target class $q$ describes $c$ as well as the distribution of all classes, which should represent a more interpretable counterfactual.
 It is, however, debatable whether the $\operatorname{IM2}$ score quantifies interpretability.
 For example, \citet{Schut2021} find that the score fails to distinguish in- and out-of-distribution samples, which refrain them from reporting the score.
+In any case, the $\operatorname{IM2}$ score relate to realistic changes by having auto-encoders reconstruct the counterfactuals.
+If the reconstruction errors are high, this hints that the given counterfactual does not resemble the training data.
 % In turn, the score is not reported in \cite{Schut2021}. 
 
 Another way to quantify how realistic counterfactual examples are is to use the FID.
@@ -1248,8 +1300,8 @@ As counterfactual methods also generate synthetic samples, it is reasonable to a
 Despite denoting it data consistency, \cite{Singla2019} utilize the FID to evaluate how realistic counterfactuals are, \ie, how close counterfactuals are to the data manifold.
 As mentioned, \citet{Rodriguez2021} quantify proximity by the FID, which we argue is not quite the right term due to the missing relationship between inputs and counterfactuals.
 
-Finally, using ``connectedness'' has also been proposed to capture whether counterfactuals stay in the vicinity of real known data~\cite{Laugel2019, Pawelczyk2020}, arguably to quantify whether they are realistic. 
-A counterfactual and a known data point is said to be $\varepsilon$-connected, if a chain of points connecting the two exists, all within an $\varepsilon$-distance to the next point in the chain such that all points in the chain have the same predicted class.
+Finally, using ``connectedness'' has also been proposed to capture whether counterfactuals stay in the vicinity of the training data~\cite{Laugel2019, Pawelczyk2020, Poyiadzi2020}, arguably to quantify whether they are realistic. 
+A counterfactual and a known data point is said to be $\varepsilon$-connected, if a chain of points connecting the two exists, all within an $\varepsilon$-distance to the next point in the chain such that all points in the chain have the same predicted class~\cite{Laugel2019}.
 Overall connectedness can then be computed as the percentage of counterfactuals that are connected to at least one point from the training data.
 However, in most cases, it is infeasible to compute connectedness due to an exponential blow-up of features.\footnote{Although for ECINN, we can actually find such chain by searching for embeddings on a straight line between the counterfactual and any sample predicted to be of the same class in the latent space of the INN, as the latent decision boundaries are also linear.}
 
@@ -1262,23 +1314,25 @@ We devote the next section to highlight our contributions for evaluating visual 
 % Introduction: 
 % - Above, we have described counterfactual properties through five points. This is to give the reader an idea of how unestablished the field of objevtively quantifying the quality of counterfactuals is. 
 % - We believe that the place to start is with lack of konwledge about what established metrics actually quantify, which is what pap:evaluation revolves around.
-Above, we have described existing metrics in terms of the five properties broadly agreed to be important for counterfactual examples.
-We did this to give a clear picture of the lack of proper metrics within the field. 
+Above, we have described existing metrics in terms of the five properties broadly agreed to be important for visual counterfactual examples.
+We did this to give a picture of the lack of proper metrics within the field. 
 For simplicity, we focus on the more general properties \emph{minimal} and \emph{realistic} changes in \paperref{pap:evaluation}. 
 % In our paper, we focus on understanding the behavior of existing metrics, which make us generalize the desired properties to minimal and realistic changes for simplicity. 
 
 As by now, it may be clear to the reader that quantitatively evaluating counterfactual explanations is not well established.
 Especially for visual counterfactual examples, quantitative metrics are limited and knowledge about what properties metrics do capture and do not capture is even more scarce.
 We believe that thoroughly understanding the behavior of existing metrics is the best first step before designing new metrics for establishing a best practice for evaluating visual counterfactual examples.
-This insight is what motivates our work in \paperref{pap:evaluation}, which, through analysis and experimental evaluations, take a large step towards solving this problem.
-Through our experiments, we further make the observation that tiny adversarial-like changes, often produced by, \eg, the method from \cite{Wachter2017}, yield undesirable good scores on multiple metrics.
-To mitigate this issue, we introduce two new metrics, which rely on ``oracle'' classifiers to avoid promoting such adversarial-like counterfactuals.
+This insight is what motivates our work in \paperref{pap:evaluation}, which, through analysis and experimental evaluations, take a step towards improving the quantitative evaluations of visual counterfactual examples.
 
 % Whats in the paper.
 \paragraph{Contributions.}
 The paper consists of three main contributions.
-An analysis, experimental evaluations, and to new metrics for evaluating counterfactual methods.
-We analyze existing metrics, from the $\operatorname{TCV}$ to the FID, in the context of visual counterfactual examples, and we do multiple experiments on datasets of increasing complexity to observe which properties metrics capture and what properties they do not capture.
+An analysis, experimental evaluations, and two new metrics for evaluating counterfactual methods.
+We analyze established metrics in the context of visual counterfactual examples, and we do multiple experiments on datasets of increasing complexity. 
+% Throuobserve which properties metrics capture and what properties they do not capture.
+Through our analysis and experiments, we demonstrate what properties metrics do and do not capture. 
+For example, we find that tiny adversarial-like changes, sometimes produced by, \eg, the method from \cite{Wachter2017}, get undesirable good scores according to multiple metrics.
+To mitigate this issue, we introduce two new metrics, which rely on ``oracle'' classifiers to avoid promoting such adversarial-like counterfactuals.
 In the following, we summarize our findings before presenting the two new metrics that we propose.
 
 % Theoretical
@@ -1296,13 +1350,16 @@ Similarly, $\operatorname{TCV}$ captures how effective a counterfactual method i
 % As discussed in \paperref{pap:evaluation}, the metric provide valuable insights into how effectively methods produce counterfactuals.
 On the other hand, the metric does \emph{not} convey any information on the quality of the counterfactuals as such.
 For example, adversarial attacks may get a high (good) $\operatorname{TCV}$, but convey little or no information to the end user, as such attacks are typically not realistic.
-As such $\operatorname{TCV}$ needs also to be considered along with other metrics that does not have this drawback.
+As such $\operatorname{TCV}$ needs also to be considered along with other metrics that do not have this drawback.
 Overall, we find that no metric expresses all desirable properties, and thus they should be used in combination.
 
 In \paperref{pap:evaluation}, we also point out that reporting the normalization used for evaluating counterfactuals is crucial for comparing methods across publications.
 In existing literature, we observe that the $\operatorname{IM1}$ and $\operatorname{IM2}$ metrics are reported for two different ranges of normalization in \cite{Mahajan2019} and \cite{VanLooveren2019}, which leads to incomparable results.
 This issue is apparent for metrics which use, \eg, the $L2$ distance, which is affected by normalization.
-For reproducibility and to enable comparisons across publications, we also stress that metrics like the $\operatorname{IM1}$ score and the FID that are based on pretrained machine learning models make it crucial to also share the exact model used.
+For reproducibility and to enable comparisons across publications, we also stress that metrics like the $\operatorname{IM1}$ score and the FID that are based on pretrained machine learning models make it crucial to also share the exact models used.
+With \paperref{pap:evaluation}, we also publish code for evaluating visual counterfactual examples.\footnote{\url{https://github.com/fhvilshoj/EvaluatingCounterfactuals}}
+With the code, normalization and model parameters for the ``evaluation models'' are handled automatically.
+In turn, if future publications use our code, comparison across publications become possible.
 
 % Practical
 % - Adversarial attacks are annawying.
@@ -1314,7 +1371,7 @@ With our experiments, we confirm multiple of our analytical observations.
 First, we confirm that normalization does matter.
 We demonstrate that comparing the $\operatorname{IM2}$ score across two different normalizations potentially yields wrong conclusions if one counterfactual method with one normalizatoin is compared to another method with another normalization. 
 Second, we demonstrate that both simple norms of differences between inputs and counterfactuals, FID, and the $\operatorname{IM1}$ and $\operatorname{IM2}$ will wrongly give good scores to counterfactuals that are less meaningful to the user.
-For example, we examine extreme cases where counterfactuals that consist of tiny adversarial-like changes or images without any information (all black images) yield better scores than realistically looking counterfactuals according to the $\operatorname{IM1}$ and $\operatorname{IM2}$, respectively.
+For example, we examine extreme cases where counterfactuals that consist of tiny adversarial-like changes and images without any information (all black images) yield better scores than realistically looking counterfactuals according to the $\operatorname{IM1}$ and $\operatorname{IM2}$, respectively.
 Similarly, for the MNIST dataset, FID yields a lower (better) score for adversarial-like changes than more realistically looking counterfactual examples.
 
 Comparing our experiments across an increasing data complexity reveals that the $\operatorname{IM1}$ and the $\operatorname{IM2}$ scores across different counterfactual methods seem to approach identical values.
@@ -1325,9 +1382,9 @@ As such, we argue that such metrics are most valuable for less complex data.
 From our analysis and experiments, we found that the evaluated metrics for quantifying realistic changes can be fooled by adversarial-like examples.
 As a consequence, we introduce two new metrics that help quantify realistic changes, without giving good scores to such small changes.
 First, we introduce the oracle score, which is similar in construction to the $\operatorname{TCV}$, but uses a surrogate ``oracle'' for the evaluation.
-The oracle score is the proportion of counterfactuals $C = \{c(x)  \mid x \in X\}$ where the classifier $f$ agrees with the oracle $o$ on the counterfactual class: 
+The oracle score is the proportion of counterfactuals where the classifier $f$ agrees with the oracle $o$ on the counterfactual class: 
 \begin{equation}\label{eq:oracle}
-    \operatorname{Oracle} = \frac{1}{|C|}\sum_{c\in C} \mathbb{1}_{[ f(c) = o(c) ]}.
+    \operatorname{Oracle} = \frac{1}{|X|}\sum_{x\in X} \mathbb{1}_{[ f(c(x)) = o(c(x)) ]}.
 \end{equation}
 The score is based on the assumption that adversarial attacks are highly model specific~\cite{Liu2017}.
 Under this assumption, the Oracle score should be high if changes are realistic such that both $f$ and $o$ capture the change in class, while adversarial attacks should only affect $f$.
@@ -1337,7 +1394,7 @@ For datasets where inputs have multiple class labels, we further introduce the L
 At a high lever, LVS is based on the assumption that for an image of a face with makeup, when a face without makeup is generated as a counterfactual example, other semantic features like gender and hair color should not change.
 To capture this, LVS uses multiple oracles trained to recognize different class labels like, \eg, hair color and gender, to quantify how much these label-independent features change. 
 LVS computes average Jensen-Shannon divergences $D_{js}$ between inputs and associated counterfactuals to quantify such changes.
-For oracles $o_l$ trained on distinct class label $l$, which outputs a discrete probability distribution over the labels, the LVS is defined as 
+For oracles $o_l$, trained on $L$ distinct class labels $l\in \{1,...,L\}$, which outputs a discrete probability distribution over the labels, the LVS is defined as 
 \begin{equation}\label{eq:lvs}
    \operatorname{LVS}_l = \frac{1}{|X|} \sum_{x \in X} D_{js}\left[ o_l(x) || o_l(c(x))\right].
 \end{equation}
@@ -1360,19 +1417,22 @@ As the amount research within generating counterfactual examples have increased 
 At the time of writing, we only know of one very recent work, which presents a framework with a suite of metrics for evaluating counterfactual examples on low-dimensional data~\cite{clara}. 
 The framework comprises metrics like $L1$ distance, $\operatorname{TCV}$, and connectedness, which we argued are of little or no use in, \eg, the image domain.
 As such, we find the timing of our paper to be just right. 
-With \paperref{pap:evaluation}, we have taken an important step towards establishing a standard suite of metrics for evaluating visual counterfactual examples, for which there exists a deep understanding of which properties each metric do and do not capture.
+With \paperref{pap:evaluation}, we have taken an important step towards establishing a standard suite of metrics for evaluating visual counterfactual examples, for which there exists a solid understanding of which properties each metric do and do not capture.
 Our work constitutes a steppingstone towards designing new metrics that successfully capture properties like sparsity, proximity, and diversity.
 Such metrics are crucial for improving further progress within the field of counterfactual examples.
 
-Arguably the most pronounced concern that the reader may have about our work is the complexity of the datasets used in the experiments. 
-Today, visual deep learning models can be applied to images with huge complexities~\cite{biggan, vit}, larger than those used in our experiments.
-In turn, it is not known whether our results extend to such complexities.
-However, to the best of our knowledge, there exists no counterfactual method which extends further than the Celeba dataset.\footnote{We used Celeba-HQ in a down scaled $64\times 64$ pixel version, due to limited resources}
-As such, it was not possible for us to extend our experiments to such datasets within a reasonable time budget. 
-\citet{Elliott_2021_CVPR} does, however, get close by using counterfactual examples to generate heatmaps from the discrepancies between inputs and counterfactuals on the ImageNet dataset~\cite{imagenet}. 
-We hypothesize that the authors transform counterfactuals into heatmaps for which, \eg, Gaussian blur is applied before identifying ``high density'' regions because the counterfactuals do not look realistic as-is.
+Perhaps the most pronounced concern that the reader may get from reading \paperref{pap:evaluation} is the complexity of the datasets used in the experiments. 
+Today, visual deep learning models can be applied to datasets with huge complexities~\cite{biggan, vit}, much larger than those used in our experiments.
+In turn, We do not known whether our results extend to such complexities.
+Except from \cite{Elliott_2021_CVPR} which computes heatmaps on ImageNet~\cite{imagenet} from discrepancies between inputs and counterfactuals, we know of no counterfactual method for which experiments extend beyond the complexity of the CelebA dataset~\cite{celeba}.
+Our experiments extend to the $64\times 64$ pixel downscaled version of the CelebA-HQ dataset~\cite{celeba-hq}. 
+As such, we are close to, but not at the limited of, the data complexity of related work.\footnote{We used CelebA-HQ in a down scaled $64\times 64$ pixel version, due to limited resources.}
+% it was not possible for us to extend our experiments to such datasets within a reasonable time budget. 
+% It should be mentioned that \citet{Elliott_2021_CVPR} does scale experiments beyond CelebA. 
+% However, they use counterfactual examples to generate heatmaps from the discrepancies between inputs and counterfactuals on the ImageNet dataset~\cite{imagenet}. 
+% We hypothesize that the authors transform counterfactuals into heatmaps because the counterfactuals do not look realistic as-is.
 
-A conclusive strategy for evaluating visual counterfactual examples may also seem to be missing in \paperref{pap:evaluation}. 
+Finally, a conclusive strategy for evaluating visual counterfactual examples may also seem to be missing in \paperref{pap:evaluation}. 
 However, as should be clear by now, metrics are still missing in terms of giving a complete evaluation of the five properties described above.
 As such, presenting a conclusive strategy could potentially harm further development by ignoring the missing aspects. 
 In turn, we refrain from giving such strategy. 
@@ -1384,9 +1444,9 @@ In turn, we refrain from giving such strategy.
 %
     
 \chapter{Conclusion} 
-Having summarized our four papers during the previous chapters, we conclude Part 1 of this thesis in this chapter.
+Having summarized the four included papers during the previous three chapters, we conclude Part 1 of this thesis in this chapter.
 We discuss our work in terms of our main hypothesis and the associated research questions in Section \ref{sec:conclusion-discussion}. 
-Then, we conclude our contributions in Section \ref{sec:conclusion-conclusion} before
+Then, we conclude our contributions in Section \ref{sec:conclusion-conclusion}, before
 describing promising future work in Section \ref{sec:conclusion-future-work}. 
 
 \section{Discussion}\label{sec:conclusion-discussion}
@@ -1399,27 +1459,34 @@ As it should be clear that both FastH and FastFID speed up computations used for
 Taking ECINN as an example, we could, as described in Section \ref{sec:fasth-applications}, employ the FastH algorithm to compute determinants and inverses of certain layers of Normalizing Flows faster.
 Faster computations means larger scale, which typically yields higher generative performances.
 With a higher generative performance, we would expect ECINN to produce even more realistically looking counterfactual examples. 
-With FastFID, we could imagine adding the FID loss when training the conditional Normalizing Flow, which is used for both classification and generation of counterfactual examples.
+With the FastFID algorithm, we could imagine adding the FID loss when training the conditional Normalizing Flow, which, in the setup proposed with ECINN, is used for both classification and generation of counterfactual examples.
 Adding the FID loss could potentially yield counterfactual examples of higher visual quality.
-For the interested reader, we did experiment with adding FID as a loss to a ``regular'' normalizing flow in \paperref{pap:fastfid}.
+For the interested reader, we did experiment with adding FID as a loss to a regular Normalizing Flow in \paperref{pap:fastfid}.
 This did, however, result in samples with visual artifacts.
 As such, it constitutes a direction of future work to derive a proper training mechanism for Normalizing Flows with an additional FID loss. 
 
-In Chapter \ref{chap:ecinn-main}, we presented ECINN, which is an answer to our second research question; how can generative models be used to explain neural networks?
+In Chapter \ref{chap:ecinn-main}, we presented ECINN, which addresses our second research question; how can generative models be used to explain neural networks?
 ECINN utilizes the generative capacities of conditional Normalizing Flows to generate explanations. 
-While related methods typically use generative models as external image generators that produce more realistically looking images, ECINN utilize the generative capabilities of  conditional Normalizing Flows. %, which can both be used for classification and conditional sampling.
-The method represents a new direction of research where a generative model is \emph{not} used as an external generator, but a central part of the classification network.
-We hypothesize that such close relationship between the classifier and the generator may lead to more faithful counterfactuals that more closely reflect the actual behavior of the classifier. 
+While related methods that use generative models typically use the generative models as external image generators that produce more realistically looking counterfactuals, ECINN directly utilize the generative capabilities of the classifier at hand. %, which can both be used for classification and conditional sampling.
+The method represents a new direction of research where a generative model is \emph{not} used as an external generator, but is an internal part of the classification network.
+We hypothesize that such close relationship between the classifier and the generator may lead to counterfactual examples that more closely reflect the actual behavior of the classifier. 
 
 In Chapter \ref{chap:evaluation}, we considered the third research question; how can we best evaluate explanations?
-We provide a deeper insight into what propterties existing metrics capture and even introduce two new metrics.  
-Throug the discussion in Chapter \ref{chap:evaluation}, we also established that the suite of metrics for evaluating visual counterfactual explanations is still not complete.
-However, from the metrics which currently exist and from qualitative inspections, we found that ECINN outperforms methods that are not based on generative models.
-Furthermore, ECINN seems to qualitatively perform roughly on par with other approaches for generating counterfactual examples, such as those from \citet{Singla2019} and \citet{Rodriguez2021}, that are based on generative models. 
-ECINN does, however, have the additional property that it is based on an analytical solution instead of an optimization problem. 
-It is inconclusive which of ECINN and the other methods based on generative models holds the state-of-the-art within visual counterfactual examples.
-Despite the lacking conclusion, we fail to reject our main hypothesis, as all methods are based on generative models.
+We provide insights into what propterties existing metrics for evaluating visual counterfactual examples actually capture and further introduce two new metrics.  
+Through the discussion in Chapter \ref{chap:evaluation}, we also established that the suite of metrics for evaluating visual counterfactual explanations is still not complete.
+We believe that the contributions of \paperref{pap:evaluation} constitute an important steppingstone towards better evaluation metrics for visual counterfactual methods.
+
+Despite not being the main intention of \paperref{pap:evaluation}, the paper presents experiments which indicate that ECINN, as a representative of methods that are based on generative models, quantitatively produce better counterfactual examples than representatives of iterative methods. 
+As we have argued that the set of evaluation metrics is still not complete and because we did not evaluate all counterfactual methods, we cannot determine, which counterfactual method holds the state-of-the-art.
+Eventhough, the results presented in both \paperref{pap:ecinn} and \paperref{pap:evaluation} indicates that counterfactuals based on generative models are of higher quality than those that do not use generative models.
+In turn, we fail to reject our main hypothesis that explanations based on generative models can produce state-of-the-art results.
 As such, we continue to believe that there is great potential within this line of research.
+
+% To conclude on our main hypothesis, we find in \paperref{pap:evaluation} that methods based on generative models produce bettt
+% However, from the metrics which currently exist and from qualitative inspections, we found that ECINN outperforms methods that are not based on generative models.
+% Furthermore, ECINN seems to qualitatively perform roughly on par with other approaches for generating counterfactual examples, such as those from \citet{Singla2019} and \citet{Rodriguez2021}, that are based on generative models. 
+% ECINN does, however, have the additional property that it is based on an analytical solution instead of an optimization problem. 
+% It is inconclusive which of ECINN and the other methods based on generative models holds the state-of-the-art within visual counterfactual examples.
 
 
 \section{Conclusion}\label{sec:conclusion-conclusion}
@@ -1430,85 +1497,119 @@ We have introduced two published papers and two manuscripts, each of them contri
 Below, we outline the main contributions of each paper.
 
 With \paperref{pap:svd}, which was published as a Spotlight paper at NeurIPS, we introduced FastH, a novel GPU-friendly algorithm for evaluating products of Householder matrices fast.
-The algorithm enjoys the fast asymptotic time complexity as a previous sequential algorithm, but with less sequential work.
-The algorithm is up to $27\times$ faster than the previous sequential algorithm.
+The algorithm enjoys the fast asymptotic time complexity of a previously proposed sequential algorithm, but with less sequential work.
+The algorithm is up to $27\times$ faster than the sequential algorithm.
 With FastH, it is possible to efficiently parameterize weights of neural networks in their SVD.
 SVD parametrized weights allows efficient computations of, \eg, the matrix determinant, the matrix inverse, and spectral normalization, all computations that are used in generative modelling. 
 As FastH can be plugged directly into the conditional Normalizing Flows used in the ECINN method that we introduced in \paperref{pap:ecinn}, it can potentially also improve the explanations of ECINN further down-stream.
 
-With the manusctips in \paperref{pap:fastfid}, we introduced FastFID,  an algorithm which allows computing the FID very efficiently for small mini-batches.
-If the minibatches are sufficiencly small, FastFID can be three orders of magnitude faster than the original implementation of FID. 
+With the manusctips in \paperref{pap:fastfid}, we introduced FastFID,  an algorithm which allows computing the FID efficiently for small mini-batches.
+When the mini-batches are sufficiencly small, FastFID can be three orders of magnitude faster than the original implementation of FID. 
 With this significant speed-up, it becomes practically feasible to use FID as a loss function. 
-We demonstrate through experiments, that using FID as a loss both improves validation scores and seems to also improve image qualities for GANs.
+We demonstrate through experiments, that using FID as a loss both improves validation scores and seems to also improve the quality of image produces by GAN.
 We are optimistic that using FID as a loss function can also improve explainability further down stream, due to better generative models.
 
-As the main result in terms of our project hypothesis, we introduce ECINN in \paperref{pap:ecinn},  which was accepted at BMVC.
+As the main result in terms of our hypothesis, we introduce ECINN in \paperref{pap:ecinn},  which is published at BMVC 2021.
 The paper demonstrates how to use a generative classifier, the conditional Normalizing Flow, to generate counterfactual examples as an addition to classifying inputs. 
-ECINN is very efficient, as it generates counterfactual examples through an analytical expression, which requires only one forward and one reverse parse through the conditional Normalizing Flow.
-ECINN produces counterfactuals of higher quality than the iterative approaches it is compared against, and in contrast to other methods that are based on generative models, it produces counterfactuals based on an analytical expression, as compared to some optimization problem.
-We see ECINN as a promissing new direction of research where the classifier is also the generative model.
+As opposed to other methods, ECINN use a closed form expression for producing counterfactual examples.
+Producing such a counterfactual example requires just one forward and one reverse pass through the conditional Normalizing Flow, which makes the method efficient enough to be used in an interactive setting. 
+% ECINN is very efficient, as it generates counterfactual examples through an analytical expression, which requires only one forward and one reverse parse through the conditional Normalizing Flow.
+ECINN produces counterfactuals of higher quality than the iterative approaches it is compared against, and in contrast to other methods that are based on generative models, it neither needs trainig of external generative models nor gradient optimization.
+We see ECINN as a promissing new direction of research where the generative model is an internal part of the classification network. 
 
-Finally, we present a manuscript in \paperref{pap:evaluation}.
-In the paper, we give a deeper insight into what properties existing metrics for quantitatively evaluating visual counterfactuals do and do not capture.
+Finally, we present \paperref{pap:evaluation}, which is a manuscript.
+In the paper, we provide insights into what properties existing metrics for evaluating visual counterfactual examples do and do not capture.
 Such insights are based on an analysis and experimental evaluations of the metrics and reveals that no one quantitative metric considered should be reported in isolation.
 We further find that tiny adversarial-like changes to inputs can often yield undesirable good scores. 
-To mitigate this issue, we introduce the Oracle score and the TCV, which are both less susceptible to such adversarial-like changes. 
+To mitigate this issue, we introduce the Oracle score and the LVS, which are both less susceptible to such adversarial-like changes. 
 Although we do not present a conclusive strategy for, \eg, determining which method performs the best, we believe that the solid understanding that we provide about existing metrics is an important first step and constitutes a stepping stone for future development of the field of counterfactual examples.
 
 \section{Future Work}\label{sec:conclusion-future-work}
 % 0.75 page on how to further develop our ideas. 
+We end Part \ref{part:overview} by highlighting some promising directions of future work that have been enabled by the presented work of this paper. 
+We have devoted a paragraph to each of the three main chapters of this thesis. 
 
-Multiple properties can be proven about ECINN.
-\begin{itemize}
-    \item For example, we can guarantee connectedness between counterfactual examples and training points, as latent decision space is a voronoi diagram and all points within a class must be connected with no other class intersecting the class.
-    \item Due to the inverse property of Wasserstrin distance, I think that we can prove, that counterfactual examples have some proximity to the real distribution, based on the likelihood in the latent space.
-    \item ECINN also supports exaggerating changes in explanations by traversing the latent space, similar to \cite{Singla2019}. 
-    \item \cite{Singla2019} also asserts that self concistency (cf of cf of x should be x) is important. ECINN has this property.
-    \item \cite{Singla2019} promotes compatibility in the sense that f(I(x, c)) should be roughly f(x) + c for a stepsize c in probability. We could easily adapt ECINN to this scenario by choosing the proper $\alpha$ values.
-    \item \cite{Singla2019} following the manifold is also done just from using the normalizing flows.
-\end{itemize}
+\paragraph{Efficient Neural Network Training.}
+With FastH, it is possible to efficiently parametrize weight matrices in their SVD.
+Perhaps the most obvious directions of future work is to utilize the efficient computations of, e.g., spectral normalization, to improve training of large scale neural networks. 
+Improvements can be done in terms of more stable training, but more importantly in terms of scaling up network architectures or datasets.
+With a larger scale, one would expect to see higher performances. 
 
-\paragraph{SVD.}
-The results from the SVD paper allows other types of models to be trained, where singular values can efficiently be constrained.
-\begin{itemize}
-    \item For example, RNNs can be trained with singular values $\pm \varepsilon$ values, to avoid vanishing gradients.
-    \item Maybe blocks of transformers could be swapped out with svd blocks, to make the orthogonal. This would arguably stabilize training and allow an efficient regularization of the models.
-\end{itemize}
+At the time of writing, we also have an improvement of the FastH algorithm, which maintains the asymptotic running time $O(d^2m)$, but improves the the number of sequential operations from $O(d/t + t)$ to $O(d/t + \log t)$.
+Informally, we can extend Lemma \ref{lem:wydec} such that it becomes possible to compute each group product $G_j=I-W_jY_j^\intercal$ through a tree of computations, where all products in each level of the tree can be computed in parallel.  
+We leave it to future work to benchmark the new algorithm.
 
+With FastFID, we find the most interesting direction of research to be the investigation of how well FID works as a training loss. 
+We have done some experiment on GANs, but scaling such experiments to other types of generative models still remains an open problem with great potential. 
 
-\paragraph{Evaluating Counterfactuals.}
-It is clear from the paper, that the evaluation metric picture is not complete yet.
-More metrics are needed to capture the intentions of counterfactual explanations.
-\begin{itemize}
-    \item Examples could be using super-pixels to evaluate how many regions are dramatically changes
-    \item Better density estimates of counterfactuals
-    \item Comparing densities for specific inputs and counterfactuals to see if CFs are realistic and still close to the input. Here, disentanglement might be necessary.
-\end{itemize}
+\paragraph{Counterfactual Explanations.}
+With ECINN, we have proposed the first method to specifically consider generative models as an internal part of the classification network.
+We believe that this approach has great potential and constitute a future line of research. 
+For example, VAEs and GANs also enable meaningful interpolations through latent spaces.
+In turn, such generative models could perhaps also be beneficial to integrate with classification networks to produce more trustworthy methods for producing counterfactual examples. 
 
+Another line of research which ECINN opens up is of a more theoretical character.
+Due to the characteristics of conditional Normalizing Flows, it may be possible to prove additional properties of ECINN.
+For example, we hypothesize that similar guarantees as to those of \cite{flowcounterfactuals}, where they show that generated counterfactuals will approximately stay on the data manifold, are also possible to produce for ECINN.
 
-\paragraph{FastFID}
-FastFID opens up for future research in incorporating FID in training losses, to potentially better guide computation of generative models or counterfactual examples. 
+\paragraph{Evaluating Counterfactual Examples}
+% We note that in \paperref{pap:evaluation}, we focus on minimal and necessary changes that are realistic and not the five properties highlighted in this thesis.
+% The focus has been changed in this thesis to better convey the fact, that although we evaluate existing metrics and even propose two new metrics, there are still open questions left. 
+% Therefor, we here devote some space to promising directions of future research. 
 
-
-
-
-\paragraph{Future work.}
-We note that in \paperref{pap:evaluation}, we focus on minimal and necessary changes that are realistic and not the five properties highlighted in this thesis.
-The focus has been changed in this thesis to better convey the fact, that although we evaluate existing metrics and even propose two new metrics, there are still open questions left. 
-Therefor, we here devote some space to promising directions of future research. 
-
-As sparsity and proximity is largely left unquantified, this presents an open question, which is of high importance for the field.
+As sparsity and proximity is largely left unquantified within evaluating visual counterfactual examples, this presents an open question, which is of high importance for the field.
 As we hinted at with the toy-example above and \citet{Rodriguez2021} further demonstrate, using deep neural networks with strong representational power to quantify, \eg, proximity, pose a promising direction of research.
-If a well-trained latent space model like a Normalizing Flow~\cite{glow} or a VAE is used
-to embed images into a more ``meaningful' latent space, possibly even disentangling latent space, it may be possible to 
-quantify properties like sparsity and proximity much better.
-In a similar vein as \cite{flowcounterfactuals}, it can even be possible in some cases to prove theoretical guarantees about such properties. 
+If a well-trained latent space model like a Normalizing Flow~\cite{glow} or ``Bootstrap Your Own Latent'' is used to embed images into a more ``meaningful'' latent space, it may be possible to quantify properties like sparsity and proximity in a more semantically meaningful way.
+% In a similar vein as \cite{flowcounterfactuals}, it can even be possible in some cases to prove theoretical guarantees about such properties. 
 
 As hinted at, a standard benchmark for counterfactual methods is also needed to ensure proper progress within the field of counterfactual examples. 
 One solution to this problem could be to aggregate scores from different metrics into one number, which captures all the mentioned properties.
 If such a benchmark is to be proposed, it is critical that all desired properties of counterfactual examples are captures.
 For now, we encourage researchers to report all established metrics in order to give as complete a picture of a method's performance as possible.
 
+This concludes Part \ref{part:overview} of this thesis.
+Hopefully, it has been an enjoyable and comprehensible overview of the four papers that follow.
+The remainder of this thesis consist of the four papers and references in the very end. 
+
+% For the field of visual counterfactual examples keep improving, we believe that it is crucial with proper quantitative metrics. 
+% Finding ways to, \eg, quantify semantic sparsity and proximity is thus an important open problem.
+% We hypothesize that the strong representational power of deep neural networks can be a beneficial component to incorporate within metrics for quantifying such properties.
+% There are many potential directions for such 
+
+
+% Multiple properties can be proven about ECINN.
+% \begin{itemize}
+    % \item For example, we can guarantee connectedness between counterfactual examples and training points, as latent decision space is a voronoi diagram and all points within a class must be connected with no other class intersecting the class.
+    % \item Due to the inverse property of Wasserstrin distance, I think that we can prove, that counterfactual examples have some proximity to the real distribution, based on the likelihood in the latent space.
+    % \item ECINN also supports exaggerating changes in explanations by traversing the latent space, similar to \cite{Singla2019}. 
+    % \item \cite{Singla2019} also asserts that self concistency (cf of cf of x should be x) is important. ECINN has this property.
+    % \item \cite{Singla2019} promotes compatibility in the sense that f(I(x, c)) should be roughly f(x) + c for a stepsize c in probability. We could easily adapt ECINN to this scenario by choosing the proper $\alpha$ values.
+    % \item \cite{Singla2019} following the manifold is also done just from using the normalizing flows.
+% \end{itemize}
+% 
+% \paragraph{SVD.}
+% The results from the SVD paper allows other types of models to be trained, where singular values can efficiently be constrained.
+% \begin{itemize}
+    % \item For example, RNNs can be trained with singular values $\pm \varepsilon$ values, to avoid vanishing gradients.
+    % \item Maybe blocks of transformers could be swapped out with svd blocks, to make the orthogonal. This would arguably stabilize training and allow an efficient regularization of the models.
+% \end{itemize}
+% 
+% 
+% \paragraph{Evaluating Counterfactuals.}
+% It is clear from the paper, that the evaluation metric picture is not complete yet.
+% More metrics are needed to capture the intentions of counterfactual explanations.
+% \begin{itemize}
+    % \item Examples could be using super-pixels to evaluate how many regions are dramatically changes
+    % \item Better density estimates of counterfactuals
+    % \item Comparing densities for specific inputs and counterfactuals to see if CFs are realistic and still close to the input. Here, disentanglement might be necessary.
+% \end{itemize}
+
+
+% \paragraph{FastFID}
+% FastFID opens up for future research in incorporating FID in training losses, to potentially better guide computation of generative models or counterfactual examples. 
+
+
+% \paragraph{Future work.}
 
 % % % % % % % OLD CONCLUSION CHAPTER: % % % % % % % % % %% 
 
