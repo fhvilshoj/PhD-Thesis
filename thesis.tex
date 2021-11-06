@@ -55,7 +55,11 @@
 \usepackage[final]{pdfpages}
 % \usepackage{caption}
 % \usepackage{subcaption}
-
+    
+%\addtopsmarks{headings}{}{%
+    %\renewcommand\sectionmark[1]{#1}
+%}
+%\pagestyle{headings}
 
 % \newcommand*\colorcheck[1]{%
   % \expandafter\newcommand\csname #1check\endcsname{\textcolor{#1}{\ding{52}}}%
@@ -161,7 +165,7 @@
 }
 
 % \title{Neural Networks and Explainability}
-\title{Neural Networks and Counterfactual \\Explanations}
+\title{Deep Neural Networks\\ and \\Counterfactual Explanations}
 \author{Frederik Hvilsh{\o}j}
 \date{\today}
 
@@ -277,7 +281,7 @@ As described in \S 11.1 of \cite{au-regulations}, the thesis is allowed to be a 
 This thesis follows such structure by including four papers with individual introductions.
 The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
 To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, section titles relating directly to specific papers have been annotated with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
-If you are reading the thesis on a computer, the annotation is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
+If you are reading the thesis on a computer, each annotation is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
 
 We include the following four papers in this thesis. Except from superimposed headers and footers, all four papers are identical to those published at the mentioned conferences or on ArXiv.
 \begin{description}
@@ -402,7 +406,7 @@ The paper presents a new algorithm for computing the Fr\'echet Inception Distanc
 With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible because of too costly computations. 
 Finally, we devote Section \ref{sec:nn-discussion} to discussing the impacts of the two papers. 
 
-\section{What if Neural Networks had SVDs?\contribution{pap:svd}} \label{sec:svd}
+\section[What if Neural Networks had SVDs?]{What if Neural Networks had SVDs?\contribution{pap:svd}} \label{sec:svd}
 % +++ 1 page on motivating the problem, e.g., with a couple of examples of where it makes sense.
 In this section, we first give a brief introduction to the problem thar our algorithm solves and the high-level contributions of our paper, before putting it into context of related work. 
 Successively, we present applications for which our algorithm improves computational efficiency.
@@ -519,7 +523,7 @@ For such situations, computing the matrix exponentials becomes asymtotically fas
 From the observation that there is a gap between the slow (in practice) $O(d^2m)$ sequential algorithm and the faster parallel $O(d^3)$ algorithm from \cite{sequential}, we raised the following question.
 
 \begin{problem}
-    Given $X\in \mathbb{R}^{d\times m}$ and $v_1, ..., v_d \in \mathbb{R}^{d}$, can we evaluate $\left[ \prod_{i=1}^d I-2\frac{v_iv_i^\intercal}{\|v_i\|_2^2}\right]X = \left[\prod_{i=1}^d H_i\right]X$ in $O(d^2m)$ time with less than $O(d)$ sequential matrix-matrix operations?
+    Given $X\in \mathbb{R}^{d\times m}$ and $v_1, ..., v_d \in \mathbb{R}^{d}$, can we evaluate the product $\left[ \prod_{i=1}^d I-2\frac{v_iv_i^\intercal}{\|v_i\|_2^2}\right]X = \left[\prod_{i=1}^d H_i\right]X$ in $O(d^2m)$ time with less than $O(d)$ sequential matrix-matrix operations?
 \end{problem}
 
 The short answer i ``yes,'' FastH computes the Householder product in $O(d^2m)$ time while using just $O(d/t) + t$ sequential operations, where $t$ is an intermediate result size, as presented next.
@@ -565,7 +569,7 @@ We note that some details have been left out in the above description of FastH.
 In \paperref{pap:svd}, we, \eg, present an algorithm for performing gradient computations as efficient as the ``forward computations.''
 We also provide CUDA code, such that our algorithm can run efficiently on GPUs.
 
-\section{Backpropagating through Fr\'echet Inception Distance\contribution{pap:fastfid}} \label{sec:fid}
+\section[Backpropagating through Fr\'echet Inception Distance]{Backpropagating through Fr\'echet Inception Distance\contribution{pap:fastfid}} \label{sec:fid}
 % +++ 1 page on motivating the problem.
 % - FID is currently used primarily to evaluate generative models.
 % - If it is such a nice metric, shouldn't we be able to train with it directly?
@@ -958,7 +962,7 @@ We analyze conditional Normalizing Flows used as classifiers and derive a closed
 
 % +++ 2 pages on our work.
 % \section{Counterfactuals from Normalizing Flows [contrinbution]}
-\section{Efficient Counterfactuals from Invertible Neural Networks\contribution{pap:ecinn}}\label{sec:ecinn}
+\section[Efficient Counterfactuals from INNs]{Efficient Counterfactuals from Invertible Neural Networks\contribution{pap:ecinn}}\label{sec:ecinn}
 \paragraph{Contributions.}
 We propose a novel method, Efficient Counterfactuals from Invertible Neural Networks (ECINN), based on conditional Normalizing Flows, which avoids the drawbacks of both the iterative approaches and the generative approaches.
 Specifically, ECINN has a close-form expression for producing a counterfactual, needing no iterative optimization algorithms, and it uses only the predictive model $f$, so it needs no additional training. 
@@ -1308,7 +1312,7 @@ However, in most cases, it is infeasible to compute connectedness due to an expo
 In \paperref{pap:evaluation}, we discuss the $\operatorname{IM1}$, $\operatorname{IM2}$, and FID metrics further and provide experimental evaluations to reveal both pros and cons of the metrics.
 We devote the next section to highlight our contributions for evaluating visual counterfactual examples. 
 
-\section{On Quantitative Evaluations of Counterfactuals\contribution{pap:evaluation}}\label{sec:evaluation-paper}
+\section[On Quantitative Evaluations of Counterfactuals]{On Quantitative Evaluations of Counterfactuals\contribution{pap:evaluation}}\label{sec:evaluation-paper}
 % +++ 3 pages on our contributions.
 
 % Introduction: 
