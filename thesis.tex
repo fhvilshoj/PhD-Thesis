@@ -192,7 +192,11 @@
 \begin{center}
   {\huge\sffamily PhD Dissertation}\\[\fill]
   \includegraphics[width=4cm]{graphics/au-segl}\\[\fill]
-  {\sffamily Department of Computer Science\\Aarhus University\\Denmark}
+  {\sffamily A DIGIT Project.\\ 
+  Department of Computer Science\\
+  and\\
+  Department of Electrical and Computer Engineering\\
+  Aarhus University\\Denmark}
 \end{center}
 \vspace*{\fill}
 
@@ -208,7 +212,8 @@
 \begin{center}
   A Dissertation\\
   Presented to the Faculty of Natural Sciences\\ of Aarhus University\\
-  in Partial Fulfilment of the Requirements\\ for the PhD Degree
+  in Partial Fulfilment of the Requirements\\ for the PhD Degree.\\
+  \vspace{1em}
 \end{center}
 \vfill
 \begin{center}
@@ -226,30 +231,27 @@
 
 
 Neural networks keep increasing in complexity and can perform ever more challenging tasks.
-In some cases, neural networks can even classify images with higher accuracy than humans and even generate synthetic data for which the human eye can barely tell the difference from real data. 
+In some cases, neural networks can classify images with higher accuracy than humans and even generate synthetic data for which the human eye can barely tell the difference from real data. 
 The high performance of such networks raises an intriguing and important question.
 How can we reason about the predictions made by such complex neural networks?
 This thesis revolves around this question.
-We focus on the task of generating counterfactual examples. 
-Counterfactual examples are alternatives to a given input, where such alternatives have the property that they have a different predicted outcome than the input.
-Being able to provide such counterfactual examples enable humans to better understand decisions made by neural networks.
-As an example, automatic screening systems based neural networks can be assessed for biases like skin color or gender discrimination. 
-% A rejected loan applicant can, \eg, be provided with counterfactual examples that show what to change to be granted a loan. 
-% Such examples could be ones where the income of the person is higher or the monthly expenses are lower.
+We focus on explaining neural network predictions by generating counterfactual examples. 
+Such examples are modifications to a given input, where the modifications yield a different predicted outcome than the input.
+Access to counterfactual examples enables humans to better understand decisions made by neural networks.
+As an example, automatic screening systems can be assessed for biases like skin color or gender discrimination. 
 
-The main hypothesis of this thesis is that crossing generative neural networks, which can generate synthetic data, with the field of explainabilty can produce state-of-the-art methods for explaining neural networks.
-% Driven by our main hypothesize that state-of-the-art counterfactual methods can be  developed by using neural networks that generate realistic ``fake'' data as a part of the solution, we investigate multiple aspects of this hypothesis. 
-We investigate this hypothesis from multiple angles during.
-First, we consider how to improve the performance of generative neural networks, as it has the potential of improving methods for explaining neural networks further down-stream.
-We present two algorithms which performs central computations, used for optimizing such generative network, much faster than existing algorithms. 
-With faster algorithms, model complexities can be increased within the same computational budget, which has the potential of increasing performance of such models.
+The main hypothesis of this thesis is that crossing generative neural networks, which can generate synthetic data, with the field of explainability can produce state-of-the-art methods for explaining neural networks.
+We investigate this hypothesis from multiple angles.
+First, we consider how to improve the performance of generative neural networks, as it has the potential of improving methods for explaining neural networks further downstream.
+We present two algorithms that perform central computations, used for optimizing such generative network, much faster than existing algorithms. 
+With faster algorithms, model complexities can be increased within the same computational budget, which can increase the performance of such models.
 Second, we consider how to use generative neural networks to generate counterfactual examples.
-We introduce an algorithm which is based on invertible neural networks.
+We introduce an algorithm based on invertible neural networks.
 To generate a counterfactual example, our method needs only one forward and one reverse evaluation of the network.
-This is in start contrast to related work, which either needs to do expensive gradient optimizations, which requires hundreds of evaluations of the classifier, or needs to spend time training an external generative model.
+This is in stark contrast to related work, which either needs to do expensive gradient optimizations, which require hundreds of evaluations of the classifier or needs to spend time training an external generative model.
 Finally, we investigate how to quantify the performance of methods for generating counterfactual examples. 
 We provide analytical and experimental insights into what properties existing quantitative metrics capture. 
-Based on our findings, we further introduce two new metrics, which mitigates some of the drawbacks of existing metrics. 
+Based on our findings, we introduce two new metrics, which mitigates some of the drawbacks of existing metrics. 
 
 
 
@@ -257,15 +259,40 @@ Based on our findings, we further introduce two new metrics, which mitigates som
 \chapter*{{\Huge Resum\'e}}
 \addcontentsline{toc}{chapter}{Resum\'e}
 
-\todo{Resum\'e på dansk}
+Neurale netværk stiger hele tiden i kompleksitet og kan udføre opgaver af h\o jere og h\o jere sværhedsgrad.
+I nogen tilfælde kan neurale netværk klassificere billeder med højere nøjagtighed and mennesker og endda generere syntetisk data, som mennesker ikke kan skelne fra rigtig data.
+Med en så høj ydeevne følger et facinerende og vigtigt spørgsmål. 
+Hvordan kan vi ræsonnere omkring de forudsigelser, som de komplekse neurale netværk laver?
+Denne afhandling drejer sig om dette spørgsmål.
+Vi fokuserer på at forklare beslutninger taget af neurale netværk ved at generere kontrafaktiske eksempler.
+Sådanne eksempler er modifikationer af oprindelige input, som giver et alternativt resultat, når de bliver evaluerat af det neurale netværk.
+Ved brug af kontrafaktiske eksempler kan mennesker bedre forstå beslutningerne taget af neurale netværk.
+Automatiske screeningsystemer kan for eksempel blive kontrolleret for tilbøjeligheder til at favorisere specifikke hudfarver eller køn.
+
+Denne afhandling bygger på en hypotese om, at hvis man krydser generative neurale netværk, som kan generere syntetisk data, med forskninig indenfor forklaringsteknikker til neurale netværk, så kan man opnå forklaringsteknikker af allerhøjeste kvalitet.
+Vi udforsker denne hypotese fra flere vinkler.
+Først overvejer vi, hvordan man kan forbedre generative neurale netværk, fordi det potentiel kan medføre forbedringer af forklaringsteknikker. 
+Vi præsenterer to algoritmer, som udfører centrale beregninger, der bruges til optimering af generative neurale netværk.
+Begge algoritmer er både teoretisk og praktisk hurtigere end eksisterende algoritmer.
+Med hurtigere algoritmer kan man benytte mere komplekse netværk under det samme beregningsbudget.
+En øgen netværkskompleksitet medfører typisk en højere ydeevne.
+Efterfølgende undersøger vi, hvordan man kan generere kontrafaktiske eksempler ved brug af generative neurale netværk.
+Vi introducerer en algoritme, som er baseret på invertible neurale netværk.
+Vores algoritme behøver kun \'en ``forlæns'' og \'en invers evaluering af det neurale netværk.
+Dette står i stærk kontrast til eksisterende algoritmer, som enten skal bruge hundredvis af evalueringer til gradientbaseret optimering eller er nødsaget til at træne en ekstern generativ model.
+Slutteligt overvejer vi, hvordan man kvantitativt kan evaluere metoder, som generer kontrafaktiske eksempler.
+Vi bidrager med analytiske og eksperimentielle indsigter i, hvilke egenskaber  eksisterende metrikker har.
+Ud fra vores fund introducerer vi videre to nye metrikker, som undgår nogen af de negative egenskaber, som eksisterende metrikker har.
+
+
 
 \cleardoublepage
 \chapter*{{\Huge Acknowledgments}}
 \addcontentsline{toc}{chapter}{Acknowledgments}
 
-I wish to express a wholehearted \emph{thank you} to everyone who have been involved in or affected by my life as a PhD student.
+I wish to express a wholehearted \emph{thank you} to everyone who has been involved in or affected by my life as a PhD student.
 Thank you to my supervisors Ira Assent and Alexandros Iosifidis for superior help and guidance.
-Thank you to everybody in the Data Intensive Systems Group and the Madalgo group for vibrant discussions and great collaborations. 
+Thank you to everybody in the Data-Intensive Systems Group, the Machine Learning and Computational Intelligence group, and the MADALGO group for vibrant discussions and great collaborations. 
 Finally, thank you to my friends and especially my family for your support and genuine interest in my research. 
 
 \vspace{2ex}
@@ -280,7 +307,7 @@ This PhD thesis is written to follow the PhD rules and regulations of the Gradua
 As described in \S 11.1 of \cite{au-regulations}, the thesis is allowed to be a composition of publications and manuscripts, for which an introductory section needs to be present for each paper, written in the PhD student's own words.
 This thesis follows such structure by including four papers with individual introductions.
 The introductions are included in Part \ref{part:overview} and the papers are included in Part \ref{part:publications}.
-To make it clear, which sections in Part \ref{part:overview} corresponds to which papers in Part \ref{part:publications}, section titles relating directly to specific papers have been annotated with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
+To make it clear, which sections in Part \ref{part:overview} correspond to which papers in Part \ref{part:publications}, section titles relating directly to specific papers have been annotated with, \eg,  ``\hspace{-0.5em}\contribution{pap:svd}'' as a shorthand for \paperref{pap:svd}.
 If you are reading the thesis on a computer, each annotation is a direct link to the chapter in Part \ref{part:publications}, which includes the associated paper.
 
 We include the following four papers in this thesis. Except from superimposed headers and footers, all four papers are identical to those published at the mentioned conferences or on ArXiv.
