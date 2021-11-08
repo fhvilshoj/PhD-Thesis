@@ -105,21 +105,6 @@
   \expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 \makeatother
 
-\newcommand{\todo}[1]{{
-    \ifdraft{
-        \color[rgb]{.5,0,0}\textbf{
-            $\blacktriangleright$#1$\blacktriangleleft$
-         }
-    }{}}} 
-\newcommand{\frederik}[1]{{
-    \ifdraft{
-        \textcolor{green}{\textbf{$\blacktriangleright$} #1\textbf{$\blacktriangleleft$}}
-    }{}}} 
-\newcommand{\content}[1]{{
-    \ifdraft{
-        \textcolor{pink}{
-            \textbf{\\$\blacktriangleright$} #1\textbf{$\blacktriangleleft$}\\}
-    }{}}} 
 % END LOAD YOUR PACKAGES HERE! (BEFORE THE HYPERREF PACKAGE)
 
 % % % % %% % % % %% % % % % e.g., i.e., etc.,
@@ -165,7 +150,7 @@
 }
 
 % \title{Neural Networks and Explainability}
-\title{Deep Neural Networks\\ and \\Counterfactual Explanations}
+\title{Deep Neural Networks\\ and \\Counterfactual Examples}
 \author{Frederik Hvilsh{\o}j}
 \date{\today}
 
@@ -275,7 +260,7 @@ Først overvejer vi, hvordan man kan forbedre generative neurale netværk, fordi
 Vi præsenterer to algoritmer, som udfører centrale beregninger, der bruges til optimering af generative neurale netværk.
 Begge algoritmer er både teoretisk og praktisk hurtigere end eksisterende algoritmer.
 Med hurtigere algoritmer kan man benytte mere komplekse netværk under det samme beregningsbudget.
-En øgen netværkskompleksitet medfører typisk en højere ydeevne.
+En øget netværkskompleksitet medfører typisk en højere ydeevne.
 Efterfølgende undersøger vi, hvordan man kan generere kontrafaktiske eksempler ved brug af generative neurale netværk.
 Vi introducerer en algoritme, som er baseret på invertible neurale netværk.
 Vores algoritme behøver kun \'en ``forlæns'' og \'en invers evaluering af det neurale netværk.
@@ -345,18 +330,18 @@ Imagine that you had to ``tell a computer'' how to identify what such images con
 Since computers represent images as large tables of numbers, this is a challenging task.  
 Perhaps you can identify why you think the rocket is launching; had there not been all the smoke and the glare of light, the rocket would not have been launching.
 However, converting such insights into a ``recipe'' (algorithm) for the computer to follow is almost impossible.
-The field of machine learning has obtained astonishing results by turning the problem upside down.
-Instead of explicitly describing an algorithm for the computer to follow, machine learning algorithms are designed to dig through tons of images to derive an algorithm that the computer can use to guess what is in the images. 
-Such algorithms sometimes even surpass human performance. 
+Machine learning techniques have obtained astonishing results by turning the problem upside down.
+Instead of explicitly describing an algorithm for the computer to follow, machine learning algorithms are designed to dig through tons of images to derive such an algorithm automatically. 
+Such algorithms sometimes surpass human performance. 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{graphics/biggan.png}
+    \includegraphics[width=0.55\textwidth]{graphics/biggan.png}
     \caption{Images copied from \cite{biggan}.}
     \label{fig:biggan-samples}
 \end{figure}
 
-The machine learning approach is immensely powerful and has been extended to all sorts of problems and tasks from cancer predictions~\cite{cancer} to generating ``fake synthetic'' data~\cite{biggan}. 
+Machine learning techniques are very powerful and have been extended problems and tasks like cancer predictions~\cite{cancer} and generating ``fake synthetic'' data~\cite{biggan}. 
 Did you, \eg, notice that the images in Figure \ref{fig:biggan-samples} are ``fake''? 
 The images are artificial and depict a dog and a rocket which never existed.
 To generate such images, a machine learning algorithm dug through more than a million images to devise an algorithm for synthesizing ``fake'' images that look realistic. 
@@ -369,7 +354,8 @@ For example, Some neural networks were trained for several days~\cite{alexnet, a
 Today, most major performance improvements are obtained by increasing dataset or network size (see, \eg,~\cite{gpt-3}).
 Consequently, if one can derive faster machine learning algorithms, then neural networks can be improved without increasing the computational budget.
 The second issue with neural networks is that the resulting algorithms that can, \eg, identify dogs and rockets in images, make predictions without any reasoning.
-For example, it is not straight forward how to get counterfactual reasoning from such networks, similar to how we did with the removal of smoke and glare of the rocket image above.
+From such networks, it is, \eg, not straight forward how to do counterfactual reasoning about the predictions of the networks; 
+similar to how we did with our own predictions above by hypothesizing about the removal of smoke and glare in the rockes image.
 Even though a neural network may correctly guess, \eg, the content of an image, it is typically hard to tell \emph{why} the network guessed as it did.
 Being able to tell \emph{why} could, \eg, enable us to validate the behavior of neural networks used to automatically judge humans, to ensure a fair judgement.
 
@@ -382,7 +368,6 @@ As a consequence, we form the main hypothesis of this thesis:
 %
 \begin{quote}
     We hypothesize that crossing generative models with explainability can produce state-of-the-art methods for explaining neural networks. 
-    \todo{Explainability have not really been introduced}
 \end{quote}
 %
 This thesis sheds light on the hypothesis by considering three research questions:
@@ -420,24 +405,24 @@ In Chapter \ref{chap:evaluation}, we analyze and experimentally evaluate existin
 \chapter{Efficient Neural Network Training}\label{chap:nns}
 Neural networks can be found solving a variety of problems, from classifying malignant breast tumors~\cite{cancer} to generating ``fake'' molecular compounds~\cite{chem-gan}. 
 However, such remarkable performances come at a high computational cost.
-For example, up to 512 highly specialized and very costly Tensor Processing Units were used to train a single model for up to 48 hours \cite{biggan}. 
-Furthermore, a current trend indicates that larger models (more parameters) perform better~\cite{language-models-few-shot, scaling-matters}.
-In turn, improving algorithms to allow even larger models to be trained within the same computational budget can positively impact performance.
-Finally, we believe that as a consequence of improved performances of generative models, better methods within explainability will also emerge further downstream.
+For example, up to 512 specialized and costly Tensor Processing Units were used to train a single model for up to 48 hours \cite{biggan}. 
+Furthermore, a current trend indicates that larger models (more compute) perform better~\cite{language-models-few-shot, scaling-matters}.
+In turn, improving algorithms to allow even larger models to be trained within the same computational budget can improve performance.
+Finally, we believe that as a consequence of improved performances of generative models, better methods within explainability will emerge further downstream.
 
-This chapter presents two papers which revolve around more efficient computations of central components for neural networks.
+This chapter presents two papers which revolve around efficient computations of central components for neural networks.
 The first paper, \paperref{pap:svd}, is introduced in Section \ref{sec:svd} and was published at NeurIPS 2020 as a spotlight paper.
 It introduces a fast algorithm for computing Householder products, which can be used to efficiently represent neural network weights in their Singular Value Decomposition (SVD) during training.
 The second paper, \paperref{pap:fastfid}, is a manuscript presented in Section \ref{sec:fid}. 
 The paper presents a new algorithm for computing the Fr\'echet Inception Distance (FID) fast for small mini-batches.
-With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible because of too costly computations. 
+With the new algorithm, FID can be optimized directly as a part of a loss function, which, prior to our work, was practically infeasible. 
 Finally, Section \ref{sec:nn-discussion} is devoted to discussing the impacts of the two papers. 
 
 \section[What if Neural Networks had SVDs?]{What if Neural Networks had SVDs?\contribution{pap:svd}} \label{sec:svd}
 % +++ 1 page on motivating the problem, e.g., with a couple of examples of where it makes sense.
-This section first gives a brief introduction to the problem that the presented algorithm solves and the high-level contributions of the paper, before putting it into context of related work. 
-Successively, applications for which our algorithm improves computational efficiency are presented.
-Finally, more details on the algorithm are given at the end of this section.
+This section gives a brief introduction to the problem that the presented algorithm solves and the high-level contributions of the paper, before putting it into context of related work. 
+Successively, applications where our algorithm improves computational efficiency are presented.
+Finally, further details about the algorithm ends this section.
 % TODO Make sure introduction is right.
 
 % 1. Present at a high level what FastH does. Not the technical part but just the result.
@@ -448,13 +433,13 @@ One way to decrease computation time is to represent weights $W$ in their SVD, $
 In such decomposition, computing the determinant of $W$ takes just $O(d)$ time, $det(W) = det(U\Sigma V^\intercal) = det(U)det(\Sigma)det(V^\intercal) = 1\cdot \prod_{i=1}^d \Sigma_{i,i} \cdot 1$.
 It is, however, not straightforward to optimize $U$ and $V$ in such representation.
 An immediate issue is that doing gradient updates on $U$ and $V$ directly is not guaranteed to maintain the orthogonality of $U$ and $V$.
-\citet{sequential} propose to parameterize each orthogonal matrix as a composition of $d$ Householder matrices $H_i$ that are stored as $d$-dimensional vector $v_i$, to circumvent this issue:
+\citet{sequential} propose to parametrize each orthogonal matrix as a composition of $d$ Householder matrices $H_i$ that are stored as $d$-dimensional vector $v_i$, to circumvent this issue:
 \begin{equation}\label{eq:hh-decomposition}
     V = \prod_{i=1}^d H_i, \qquad H_i = I - 2\frac{v_i v_i^\intercal}{\| v_i \|_2^2}.
 \end{equation}
 In Equation \ref{eq:hh-decomposition}, each $H_i$ is orthogonal, which makes $V$ orthogonal as well. 
-Furthermore, any $d$-dimensional orthogonal matrix can be represented by such decomposition~\cite{uhlig2001constructive}. 
-The parameterization makes gradient descent possible by preserving the orthogonality of $U$ and $V$ during optimizations, while the matrix product $WX = U \Sigma V^\intercal X$ can be evaluated in $O(d^2m)$ for a mini-batch of $m$ samples $X\in\mathbb{R}^{d\times m}$, similar to regular matrix multiplication. 
+Furthermore, any $d$-dimensional orthogonal matrix can be represented by such decomposition~\cite{qrhh}. 
+The parametrization makes gradient descent possible by preserving the orthogonality of $U$ and $V$ during optimizations, while the matrix product $WX = U \Sigma V^\intercal X$ can be evaluated in $O(d^2m)$ for a mini-batch of $m$ samples $X\in\mathbb{R}^{d\times m}$, similar to regular matrix multiplication. 
 There is, however, a catch.
 The decomposition is inherently sequential. 
 That is, to evaluate $WX$, one must compute $O(d)$ sequential matrix-vector operations, which is ill-fit for GPUs.\footnote{We distinguish matrix-vector and matrix-matrix operations because GPUs are highly parallel and much more efficient on matrix-matrix operations. Matrix-matrix operations are thus preferred.}
@@ -477,26 +462,28 @@ In practice, we find that FastH is up to 27 times faster than the sequential alg
 Before presenting the details of the FastH algorithm in Section \ref{sec:fasth}, applications of representing weight matrices in their SVD and related work are described next.
 
 \subsection{Applications}\label{sec:fasth-applications}
-Besides the determinant computations, which we have already mentioned, we describe three additional applications for which parameterizing weight matrices by their SVDs has advantages in terms of computational speed-ups.
+Besides the determinant computations, which we have already mentioned, we describe three additional applications for which parametrizing weight matrices by their SVDs has advantages in terms of computational speed-ups.
 
 The first example is the matrix inverse. 
 Inverting a $d\times d$ matrix generally takes $O(d^3)$ time.
-With the SVD parametrization, we can compute the matrix inverse as follows:
+With the SVD, the matrix inverse can be computed as follows:
 \begin{equation}\label{eq:svd-inverse}
     W^{-1} = (U\Sigma V^\intercal)^{-1} = (V^\intercal)^{-1}\Sigma^{-1}U^{-1} = V \Sigma^{-1} U^\intercal.
 \end{equation}
-From Equation \eqref{eq:svd-inverse}, we see that transposing $U$ and $V$, and inverting the diagonal matrix $\Sigma$ is enough.
-In the Householder representation shown in Equation \eqref{eq:hh-decomposition}, multiplying with the transpose of $U$ or $V$ corresponds to reversing the order of the householder matrices.
-In turn, it takes $O(1)$ time to do the transpose operation. 
+From Equation \eqref{eq:svd-inverse}, inverting $W$ requires only a diagonal inverse and two transposes.
+% we see that transposing $U$ and $V$, and inverting the diagonal matrix $\Sigma$ is enough.
+In the Householder representation shown in Equation \eqref{eq:hh-decomposition}, multiplying with the transpose of $U$ or $V$ corresponds to reversing the order of the Householder matrices.
+In turn, the transpose operation takes constant time. 
 Inverting a diagonal matrix takes $O(d)$ time. 
-Consequently, the inverse can be computed in $O(d)$ rather than $O(d^3)$ time.
+Consequently, the inverse takes $O(d)$ time rather than $O(d^3)$.
 
 The second example is weight decay, which is arguably one of the most established regularizers of neural networks.
 The squared Frobenius norm has the property that it can be computed as the sum of squared singular values, \ie, $\|W\|_F^2 = \sum_{i,j=1}^d W_{i,j}^2 = \sum_{i=1}^d \Sigma_{ii}^2$.
 Therefore, when we can read off the diagonal of $\Sigma$ directly, we can compute weight decay in $O(d)$ time instead of the $O(d^2)$ time it takes to compute the square of all entries in $W$.
-Additionally, some works utilize the nuclear norm, which simply constitutes the sum of singular values $\|W\|_\ast = \sum_{i=1}^d \Sigma_{i,i}$~\cite{nuclear-norm-regularizer, nuclear-norm-regularizer2}. 
+Additionally, some works utilize the nuclear norm, which is the sum of singular values $\|W\|_\ast = \sum_{i=1}^d \Sigma_{i,i}$~\cite{nuclear-norm-regularizer, nuclear-norm-regularizer2}. 
 In contrast to the Frobenius norm, the nuclear norm requires explicitly computing the SVD in $O(d^3)$ time at each training step.
-Although not straight forward to optimize  $U$ and $V$ in the mentioned work due to additional training details, such norm could again be computed in $O(d)$ time if $\Sigma$ was known. 
+Although not straight forward to apply to the mentioned work due to further optimization details, such norm can be computed in $O(d)$ time if $\Sigma$ is known.
+%to optimize $U$ and $V$ in the mentioned work due to additional training details, such norm could again be computed in $O(d)$ time if $\Sigma$ was known. 
 
 The third and final application is spectral normalization, which is used to train generative adversarial networks~\cite{sngan, wgan} and make neural networks more robust against adversarial attacks~\cite{spectral-norm-robustness}. 
 Spectral normalization constrains the largest singular value of $W$ to be one, \ie, $W = W / \max_{i}(\Sigma_{i,i})$. 
@@ -524,16 +511,17 @@ An area of research where orthogonal matrices are of high importance and often u
 Given a long sequence of samples $x_1, ..., x_t\in\mathbb{R}^{m}$, recurrent neural networks are applied over and over again along the sequence of samples with the output from the previous sample as a part of the input, \ie, $f(x_t, ...f(x2, f(x_1, 0)) ... )$ where $f$ has the structure $f(x, z) = \sigma( Vx + Wz) )$ with $V\in \mathbb{d\times m}$, $W\in\mathbb{R}^{d\times d}$, and $\sigma$ being some point-wise non-linearity~\cite{urnn}.
 For such computations, gradient computations become very ``long,'' which can result in vanishing or exploding gradients if $W$ and $\sigma$ are not norm preserving.
 Orthogonal matrices are norm preserving, \ie, $\|Ux\|_2 = \|x\|_2$, and constitute central building blocks for avoiding exploding (or vanishing) gradients.
-To the best of our knowledge, \citet{urnn} were the first to parameterize orthogonal matrices for RNNs through a product of cleverly chosen low memory footprint and efficient complex unitary matrices, such that $Wx_i$ can be evaluated in $O(d \log d)$ time.
+To the best of our knowledge, \citet{urnn} were the first to parametrize orthogonal matrices for RNNs through a product of cleverly chosen low memory footprint and efficient complex unitary matrices, such that $Wx_i$ can be evaluated in $O(d \log d)$ time.
 However, the resulting orthogonal matrices are limited in what they can express. 
 Informally, this is due to a limited $O(d)$ free parameters of the complex matrices.
 Successively, \citet{hh-rnn} proposed to instead parametrize the orthogonal matrix with $O(d)$ Householder matrices to parametrize the $W$s in RNNs with $O(d^2)$ parameters. 
 \citet{sequential} further utilize a Householder parametrization to form an SVD of $W$ where the singular values are restricted to be close to one, \ie, $\Sigma_{i,i} \in [1\pm\varepsilon]$ for $\varepsilon > 0$. 
 As described, \cite{sequential} presents both a sequential and a parallel algorithm for evaluating the Householder parametrization.
-For an input $X\in\mathbb{R}^{d\times m}$, evaluating $WX$ sequentially has an $O(d^2m)$ time complexity, but is slow in practice, while the parallel algorithm is faster in practice but has an $O(d^3)$ time complexity. 
-\todo{Make sure that these bounds are actually correct. I suspect that they need to be at least $O(d^3\log d + d^2m)$.}
-With FashH, we present a new algorithm, which shares the $O(d^2m)$ time complexity while being up to six times faster than the parallel algorithm.
-It should also be mentioned that concurrent with \paperref{pap:svd}, \citet{cwy-dec} also notice the gap between the sequential and parallel algorithm and present another parallel algorithm for evaluating Householder products using a related CWY decomposition, which relies on matrix inversion that takes $O(d^3)$ time.
+For an input $X\in\mathbb{R}^{d\times m}$, evaluating $WX$ sequentially has an $O(d^2m)$ time complexity but is slow in practice. 
+The parallel algorithm is faster in practice but has an $O(d^3)$ time complexity. 
+FastH is a new algorithm that shares the fast $O(d^2m)$ time complexity while being fast in practice; 
+FastH is up to six times faster than the parallel algorithm.
+It should also be mentioned that concurrent with \paperref{pap:svd}, \citet{cwy-dec} also notice the gap between the sequential and parallel algorithm and present a different parallel algorithm for evaluating Householder products from a related CWY decomposition, which relies on matrix inversion that takes $O(d^3)$ time.
 
 Another area where orthogonal matrices are employed is in Normalizing Flows where, \eg, determinant computations of weight matrices can be needed~\cite{glow}.
 As a way of parametrizing square matrices such that determinants can be computed efficiently, \citet{emerging} propose to utilize the QR decomposition $W = QR$, where $Q\in\mathbb{R}^{d\times d}$ is an orthogonal matrix parametrized by the Householder decomposition described in Equation \eqref{eq:hh-decomposition} and $R\in\mathbb{R}^{d\times d}$ is a triangular matrix.
@@ -751,7 +739,7 @@ As such, we conclude that using FID as a loss function has great potentials in t
 
 With the FastH algorithm in \paperref{pap:svd}, we have introduced an algorithm that can be plugged directly into essential layers of Normalizing Flows to improve efficiency.
 Consequently, using FastH enables researchers to train larger models within the same time budget.
-FastH can also be used in GANs, where weight matrices can be parameterized in their SVD to allow efficient normalization of such weights.
+FastH can also be used in GANs, where weight matrices can be parametrized in their SVD to allow efficient normalization of such weights.
 As scaling models up tends to yield better performances, we are optimistic that FastH can contribute to better-performing models.
 
 There are, however, some caveats. 
@@ -772,9 +760,9 @@ As the main hypothesis of this thesis is that crossing research within explanati
 The next chapter is devoted to presenting approaches for using generative models as central components for generating counterfactual examples for neural networks. 
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-% COUNTERFACTUAL EXPLANATIONS                                   %
+% COUNTERFACTUAL EXAMPLES                                       %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\chapter{Counterfactual Explanations} \label{chap:ecinn-main}
+\chapter{Counterfactual Examples} \label{chap:ecinn-main}
 % +++ 1 page of introduction
 
 % 1. Neural Networks increasingly popular. For image classification, they even surpass human performance on some tasks.
@@ -782,12 +770,13 @@ On many machine learning tasks, deep neural networks obtain state-of-the-art per
 For such networks to be applicable in practice, it is often critical that humans understand their behavior to be able to validate, justify, and reason about their predictions. 
 The field of explainable machine learning aims at developing methods that provide such understanding.
 % 2. This carries a need for ways to explain neural networks. We try to answer questions like "What information in the input made the network predict a certain output?", "What is the general behavior of the network?", and "How can I change the input in a meaningful way such that the predicted outcome changes?"
-Methods typically answer questions like ``For input X, what information in X made the model predict class Y?,''  ``What general patterns are the model looking for?,'' and ``How can I meaningfully change the input such that the predicted outcome changes?.'' 
+Methods typically answer questions like ``For input X, what information in X made the model predict class Y?,''  ``What general patterns is the model looking for?,'' and ``How can I meaningfully change the input such that the predicted outcome changes?.'' 
 There exist many methods for answering such questions. 
 %    Answering such questions gives a greater insight into the networks and allows users to get a deeper understanding of their behavior. It also allows identifying biases in the models and better understanding research from analyzing outcomes of models on research specific data. 
 % 3. Lots of methods exists. Some methods produces heatmaps, which identify salient input features, which were inportant for the predictions. Others produces maps of inputs which maximized activations of different neurons to detect what characteristics different neurons are looking for. 
-Methods that produce heatmaps typically answer the first question \cite{lrp}, while methods that identify inputs that maximize specific neurons answer the second question \cite{carter2019activation}. 
-The third question, which relates to the main focus of this chapter, is associated with counterfactual examples.
+Methods producing heatmaps typically answer the first question \cite{lrp}, while methods identifying inputs that maximize specific neurons answer the second question \cite{carter2019activation}. 
+The third question is related to counterfactual examples, which is the main focus of this chapter.
+%, which relates to the main focus of this chapter, is associated with counterfactual examples.
 Counterfactual examples identify how to alter inputs such that their predicted classes change.
 
 % 4. A perticular type of explanations are counterfactual examples.
@@ -818,7 +807,7 @@ With Problem Statement \ref{def:dl-counterfactual}, the problem is relaxed in th
 % There are two important difference between the definitions. 
 % First, given a causal structural model, Definition \ref{def:causal-counterfactual} will always yield the same answer to the same question because the causal model dictates the relationship between variables. 
 There typically exist infinitely many answers to Problem Statement \ref{def:dl-counterfactual} for a given classifier.
-As a consequence, many solutions to the problem may be of low value to end users if they are, \eg, unrealistic or convey no semantic information.
+As a consequence, many such answers may be of low value to end-users if they are, \eg, unrealistic or convey no semantic information.
 Therefore, much of the research revolves around finding solutions to Problem Statement \ref{def:dl-counterfactual} that are also useful to the end-user.
 Because of potentially many low-value solutions, algorithms can be hard to develop but should successively be easy to use by the end-user.
 
@@ -826,13 +815,13 @@ Because of potentially many low-value solutions, algorithms can be hard to devel
 % Recall that the main hypothesis of this thesis is that explanations for deep neural networks can be improved by generative models.
 %reash state of the art by can be goes hand in hand with methods for generating synthetic data. 
 In the field of generative models, the most research has arguably been done on images~\cite{realnvp, sngan, vae}.
-As we wish to combine generative models with explainability, it is therefore natural to focus on counterfactual examples in the image domain.
-In terms of Problem Statement \ref{def:dl-counterfactual}, a counterfactual in the image domain is a new image, which resembles the original image, but with characteristic semantic changes that make the predicted outcome change.
+As we wish to combine generative models with explainability, it is therefore natural to focus on the image domain.
+In terms of Problem Statement \ref{def:dl-counterfactual}, a counterfactual in the image domain is a new image, which resembles the original image but with characteristic semantic perturbations that change the predicted outcome.
 Such a counterfactual example will answer the question in Problem Statement \ref{def:dl-counterfactual} by ``had the input had these particular changes, then the outcome would have been Z.''
 
 In the image domain, and arguably also in others, it is hard to quantify the quality of counterfactuals.
 We want changes to be small, while too small changes are also undesirable. 
-There are, \eg, many neural networks that can be fooled to predict wrong classes by adding tiny, carefully selected, and imperceptible noise to the input image (also known as adversarial attacks)~\cite{su2019one}. 
+There are, \eg, many neural networks that can be fooled to predict wrong classes by adding tiny, carefully selected, and imperceptible noise to the input image (also known as adversarial attacks)~\cite{one-pixel-attack}. 
 Such attacks are too small for the human eye and convey little or no information to the end-user about the decision process of the predictive model. 
 Changing too much is also undesirable, since a completely changed image also carries little or no information about the original image.
 Therefore, the challenge is to design algorithms that strike the right balance between generating small changes but still changing enough for humans to see it. 
@@ -840,7 +829,7 @@ The next section describes some different approaches for generating counterfactu
 
 % +++ 3 pages on related work. 
 \section{Generating Visual Counterfactual Examples}
-In the literature, there are two dominant approaches for generating visual counterfactual explanations.
+In the literature, there are two dominant approaches for generating visual counterfactual examples.
 One approach relies heavily on iterative numerical optimization techniques to gradually generate images that optimize some objective function.
 The other approach trains generative models to aid the generation of counterfactual examples. 
 In the following, the two approaches are presented before presenting our approach, which opens a new direction of research, in Section \ref{sec:ecinn}. 
@@ -860,7 +849,7 @@ In particular, they propose to do the following optimization.
     +       \underbrace{d(x, \hat x)}_{``closeness''},
 \end{equation}
 where $\lambda$ prioritizes high certainty predictions, $x, \hat x \in \mathcal{X}$ are the input and counterfactual from the input domain $\mathcal{X}$, respectively, $f: \mathcal{X} \rightarrow \mathbb{R}^K$ is the prediction function over $K$ classes (\eg, a neural network), $q\in \{0, 1\}^K$ is the one-hot encoded target class, and $d(\cdot, \cdot)$ is a distance function.
-The two terms in Equation \eqref{eq:wachter} encourages the counterfactual to change the predicted class and to stay in the vicinity of the input, respectively.
+The two terms in Equation \eqref{eq:wachter} encourages the counterfactual to change the predicted class and to stay clos to the input, respectively.
 
 For a training set $X = \{ x_1, ..., x_n  \}$ with $x_i \in \mathbb{R}^d$, the authors propose to use an entrywise normalized $L1$ distance as the distance metric $d$:
 \begin{equation}
@@ -870,7 +859,6 @@ where $MAD_k$ is the median absolute distance of feature $k$, defined by:
 \begin{equation}\label{eq:MAD}
     MAD_k = \operatorname{median}_{x\in X} (|x_k - \operatorname{median}_{x'\in X}(x'_k)|).
 \end{equation}
-\todo{$X$ is overloaded here. Find a way to make ``domain'' X caligraphic}
 The normalization is similar to normalizing each feature with the standard deviation of that feature while being less affected by outliers. 
 It allows features that naturally vary more than others to also vary more in the resulting counterfactuals. 
 
@@ -895,13 +883,13 @@ Again, counterfactuals are obtained by gradient descent or other iterative numer
 From the experiments in \cite{Dhurandhar2018}, there is a slight qualitative improvement in adding the auto-encoder term in Equation \eqref{eq:dhurandhar}. 
 
 An idea to further improve the loss function was presented by \citet{VanLooveren2019}, who add a loss term that compares encodings of the counterfactual from the auto-encoder with train-set-wide average encodings from the nearest class. 
-The additional term is $\theta \| \hat x - proto \|_2^2$, where $proto$ is the closest prototype to the original inputs encoding
+The additional term is $\theta \| \hat x - proto \|_2^2$, where $proto$ is defined as follows:
 \begin{align}\label{eq:prototype}
 	proto_i &= \frac{1}{|X_i|}\sum_{x\in X_i} ENC(x)\\
     proto &= \argmin_{proto_i: i \neq y} \| ENC(x) - proto_i\|_2.
 \end{align}
 The loss term is supposed to help guide both the ``prediction'' part of the loss by choosing the closest target class through $proto$ and to help the ``closeness'' by encouraging realistic counterfactuals by ensuring that the embedding of the counterfactual is close to the embeddings of the training data.
-Through experiments, \citet{VanLooveren2019} find that the additional loss term improves the quality of the counterfactuals as well as decreases the number of gradient steps needed.
+Through experiments, \cite{VanLooveren2019} finds that the additional loss term improves the quality of the counterfactuals and decreases the number of gradient steps needed.
 In turn, they manage to find counterfactuals faster. 
 
 There do also exist other iterative approaches.
@@ -909,8 +897,8 @@ For example, \citet{goyal19a} treat convolutional neural networks as a compositi
 They use the feature extractor to extract embeddings for small patches of both the input image and an image from the target class. 
 They successively use a greedy iterative algorithm to swap in patches from the target-class-image to obtain a combination of patches from the original and the target-class-image to get a hybrid image that changes the class prediction.
 Such an approach is good when the available data is too scarce to train a generative model. 
-For tabular data, examples methods based on genetic algorithms \cite{Hashemi2020} and heuristics based on simple statistics~\cite{Gomez2020} also exist.
-However, such methods are less applicable to the image domain due to the exponential increase in input possibilities and will not be discussed further. 
+For tabular data, examples of methods based on genetic algorithms \cite{Hashemi2020} and simple statistic-based heuristics~\cite{Gomez2020} also exist.
+However, such methods are less applicable to the image domain due to the exponential increase in input possibilities. 
 
 Common for the iterative approaches mentioned is that they require many evaluations of the classifier which is being explained.
 Consequently, generating each counterfactual example can be slow.
@@ -968,14 +956,14 @@ Judging by their experiments, they obtain counterfactual examples of high visual
 
 % GAN version: Singla2019
 % Similar to how auto-encoders have been successful in the field of generative models, so have GANs \cite{gans}.
-\citet{Singla2019} present an approach for generating counterfactual explanations which is based on conditional GANs \cite{conditionalgan}.
+\citet{Singla2019} present an approach for generating counterfactual examples which is based on conditional GANs \cite{conditionalgan}.
 At a high level, a conditional GAN is trained to predict how counterfactuals would look, conditioned on what the predicted outcome of $f$ should be. 
 When the conditional GAN is trained, it can be used to exaggerate changes from one class to another by predicting counterfactual examples associated with an increasing certainty of the target class.
 Typically, GANs are trained to produce images from random noise.
 However, in a counterfactual setting, where we want inputs and outputs to be related, such setup does not work. 
 To alleviate the issue, \citet{Singla2019} introduce an encoder, which is trained to produce embeddings that the GAN then use for predicting counterfactuals. 
 % Consider abstracting the encoder away, as it is always unsed in conjunction with the generator. One might just think of the two as one composed network. It doesn't even have its own loss. 
-The method leverages the high generative performance of GANs to produce high-quality counterfactual explanations.
+The method leverages the high generative performance of GANs to produce high-quality counterfactual examples.
 To the best of our knowledge, this method is the only method that generates visually appealing counterfactual examples efficiently for images without any optimization at inference time. 
 % , as they just need one pass through the encoder and the generator to produce a counterfactual example, without any optimization steps.  
 In terms of the FID score, \cite{Singla2019} does not perform as well as \cite{Rodriguez2021}, but their performance held state-of-the-art in terms of FID when the paper was published.
@@ -1032,7 +1020,7 @@ As $p_{z|y}$ is normally distributed with unit variance, maximizing the log dens
 \end{align}
 
 This relation has the immediate consequence that if we wish to find a latent vector, which, according to the model, is most likely to be from a particular class $q$, we would need the latent vector to be closer to $\mu_q$ than to any of the other mean values. 
-We use this insight to derive an algorithm for generating counterfactual explanations for this particular kind of predictive model. 
+We use this insight to derive an algorithm for generating counterfactual examples for this particular kind of predictive model. 
 
 In a pre-computation step, ECINN finds directions in the latent space to move embeddings to translate them from one class to another.
 In particular, directions are chosen to be the difference between mean embeddings over the training set of all samples predicted to be from the same class.
@@ -1046,11 +1034,11 @@ Note how the expression requires no optimization and only two evaluations of $g$
 
 To choose values of $\alpha$, we derived a closed-form solution for $\alpha$ that translates a given embedding just far enough to be on the decision boundary between the two classes.
 In the cat and dog example, it would be the point where the distance from the embedding to $\mu_{\text{cat}}$ would be the same as to $\mu_{\text{dog}}$. 
-We denote counterfactual examples generated from the latent vector on the decision boundary tipping-point counterfactuals because they constitute the exact point where prediction tips from the original class to the target class.
-Similarly, we can increase $\alpha$ to move further in the latent space and reach a point where the latent vector is predicted to be from the target class with high certainty.
+We denote counterfactual examples generated from the latent vector on the decision boundary tipping-point counterfactuals because they constitute the exact point where predictions tip from the original class to the target class.
+Similarly, we can increase $\alpha$ to reach a point where the latent vector is predicted to be from the target class with high certainty.
 We call these counterfactuals convincing counterfactuals and argue that both types of counterfactuals are important for better understanding the predictive model.
 
-In our experiments, we find that ECINN produces high-quality counterfactual explanations much faster than the iterative approaches that we compare against. 
+In our experiments, we find that ECINN produces high-quality counterfactual examples much faster than the iterative approaches that we compare against. 
 The produced counterfactuals are shown to preserve semantic features that do not relate to the target label.
 For example, when generating counterfactual examples for MNIST digits~\cite{mnist}, semantic features like font-weight and tilt of the digits do not change.
 Similarly, gender and skin color remain the same, when turning smiling faces into frowning ones for the CelebA-HQ dataset~\cite{celeba-hq}.
@@ -1062,7 +1050,7 @@ Similarly, gender and skin color remain the same, when turning smiling faces int
     \centering
     \begin{tabular}{lcccc}
     \toprule
-        \textbf{Method}                                                 & \textbf{Fast}    & \textbf{Validity} & \textbf{High Quality}   & \textbf{Analytic}         \\
+        \textbf{Method}                                                 & \textbf{Fast}    & \textbf{Validity} & \textbf{High quality}   & \textbf{Analytic}         \\
     \midrule                                                              
         Iterative \cite{Wachter2017, Dhurandhar2018, VanLooveren2019}   & \redcross        & \redcross         &  \redcross             & \redcross                 \\
         Generative \cite{Joshi2018, Rodriguez2021, Singla2019, flowcounterfactuals}  & (\greencheck)      & -                 &  \greencheck           & \redcross                 \\
@@ -1077,7 +1065,7 @@ Similarly, gender and skin color remain the same, when turning smiling faces int
     % Pros // Cons
     % - Iterative: Needs no training and can be applied to any model, 
 When comparing different overall approaches for generating counterfactuals, there are multiple things to take into account.
-Naturally, the central objective of counterfactual explanations is to enable humans to better understand the decision-making process of a given classifier.
+Naturally, the central objective of counterfactual examples is to enable humans to better understand the decision-making process of a given classifier.
 Hereof, there are multiple properties to consider.
 We find the most important properties to be the quality and validity of the counterfactual methods, how fast they are, and whether the methods need additional optimizations or have analytical solutions.
 In the following, we discuss the three overall approaches described above in terms of the four properties.
@@ -1091,7 +1079,7 @@ They report inference times of between roughly 2 and 13 seconds, which is too sl
 Although not reported for the GAN-based method from \cite{Singla2019}, one must expect that inference times for the GAN, once trained, are fast, as the GAN setup only needs one evaluation of an encoder and a generator to generate a counterfactual example.
 While computation times are not explicitly reported, the VAE based methods from \cite{Rodriguez2021, Joshi2018} are still iterative and must be expected to be slower than the GAN base approach from \cite{Singla2019}.
 ECINN needs just one forward and one backward pass to generate a counterfactual example.
-In \paperref{pap:ecinn}, we find that it takes $0.003$ seconds on average to compute a counterfactual example, which is faster than a 60Hz frame rate, and in turn, provide instant feedback to the user.
+In \paperref{pap:ecinn}, we find that it takes $0.003$ seconds on average to compute a counterfactual example, which is fast enough to provide instant feedback to the user.
 
 For a counterfactual method to be useful, the proportion of samples that each method can generate counterfactual examples for, denoted validity in, \eg, \cite{Mothilal2020}, is also essential.
 With a higher proportion of successful counterfactual examples, a given method will be able to provide more information for the user.
@@ -1104,8 +1092,8 @@ If image counterfactuals are to be useful, they need to convey realistic changes
 Quantifying the quality of counterfactual examples is a topic to which Chapter \ref{chap:evaluation} is devoted.
 Here, the discussion is restricted to qualitative properties of the generated counterfactual examples.
 Most likely, much of the development around iterative methods have been driven by a common issue with the iterative models; visually, they tend to produce unrealistic changes (cf. row two and three in Figure \ref{fig:iterative-counterfactuals-copied}).
-In contrast, generative models have high generative capacities and produce more compelling counterfactual examples (cf. Figure \ref{fig:generative-counterfactuals-copied}).
-As ECINN is also based on a variation of a generative model, the corresponding counterfactuals are likewise of a high quality.
+In contrast, generative models produce more compelling counterfactual examples (cf. Figure \ref{fig:generative-counterfactuals-copied}).
+As ECINN is also based on a variation of a generative model, the corresponding counterfactuals are likewise of a higher quality.
 In Figure \ref{fig:iterative-counterfactuals-copied} and Figure \ref{fig:generative-counterfactuals-copied}, we have included copies of figures from relevant publications to let the reader judge the quality of the generated counterfactuals by the different methods.
 For the generative models (Figure \ref{fig:generative-counterfactuals-copied}), multiple counterfactuals are generated with different predictions by the classifier (labels over images).
 Diversity in the counterfactuals improves the usefulness of the counterfactuals by conveying additional information about the decision space of the classifier~\cite{Rodriguez2021}.
@@ -1145,7 +1133,7 @@ Applying ECINN to such model architecture would most likely result in a less eff
 \citet{expl-inn} further demonstrate how a modification of a ResNet architecture to make it invertible yields similar or slightly worse accuracies on ImageNet~\cite{imagenet} as compared to the original ResNet, but retains the efficient sampling procedure and well-structured latent space.
 As such, we are optimistic that ECINN can successfully be applied to more powerful and popular architectures.
     
-With ECINN, we have introduced a promising new direction of research within the field of counterfactual explanations. 
+With ECINN, we have introduced a promising new direction of research within the field of counterfactual examples. 
 ECINN utilizes the benefits of generative models while having an analytical solution, in contrast to related work, which needs additional optimizations to either find counterfactual examples or pretrain external generative models.
 ECINN produces high-quality counterfactual examples that are visually on par with other methods based on generative models, and better than counterfactuals generated by iterative methods.
 In the next chapter, we change the perspective from particular methods for producing counterfactuals to how to quantitatively evaluate counterfactual examples. 
@@ -1154,7 +1142,7 @@ In the next chapter, we change the perspective from particular methods for produ
 % % % % % % % % % % %  % % % % %  % % % % %  % % % % %  % % % % %  % % % % %  % % % % % 
 % EVALUATING COUNTERFACTUALS
 % % % % % % % % % % %  % % % % %  % % % % %  % % % % %  % % % % %  % % % % %  % % % % % 
-\chapter{Evaluating Counterfactual Explanations}\label{chap:evaluation}
+\chapter{Evaluating Counterfactual Examples}\label{chap:evaluation}
 % +++  1 page of introduction to the problem
 Central for the development of any field of research are practices for evaluating methods proposed within the field.
 For counterfactual examples, both ``objective'' and ``subjective'' methods have been proposed to evaluate different aspects of the generated examples~\cite{Stepin2021}.
@@ -1164,8 +1152,8 @@ As indicated by the name, objective metrics are beneficial because they can be a
 As we demonstrate in \paperref{pap:evaluation}, objective metrics used for image counterfactuals sometimes fail to distinguish the good from the bad examples.
 % The particular issue is perhaps also one of the reasons why subjective metrics have been proposed.
 This chapter focus on objective metrics for image counterfactuals. 
-We first give a high-level overview of desired properties of visual counterfactual examples before describing existing metrics that have been proposed in related work to quantify such properties in Section \ref{sec:existing-metrics}.
-Afterward, we describe how we contribute with a deeper understanding of what properties existing metrics do and do not capture before introducing two new metrics that mitigate drawbacks of existing metrics in Section \ref{sec:evaluation-paper}.
+We first give a high-level overview of desired properties of image counterfactuals before describing existing metrics that have been proposed to quantify such properties in Section \ref{sec:existing-metrics}.
+Afterward, Section \ref{sec:evaluation-paper} describes how \paperref{pap:evaluation} contributes with a better understanding of what properties existing metrics do and do not capture, as well as two new metrics that mitigate drawbacks of existing metrics.
 The chapter is concluded with a discussion in Section \ref{sec:eval-discussion}.
 
 \paragraph{Desired properties.}
@@ -1186,8 +1174,8 @@ Below, we briefly describe the four properties from \cite{Mothilal2020} that are
     Depending on the domain, sparsity can be hard to quantify because sparse changes can relate to changing a few semantic features rather than, \eg, a few pixel values.
     
     \item[Proximity] is closely related to sparsity and minimal changes by considering how close generated counterfactuals are to their associated input.
-    According to \cite{Mothilal2020}, a counterfactual close to the input can intuitively be most useful to the users.
-    Quantifying proximity also depends much on the domain, as we will discuss in this chapter. 
+    According to \citet{Mothilal2020}, a counterfactual close to the input can be most useful to the users.
+    The difficulty of quantifying proximity also depends on the domain, as we will discuss in this chapter. 
     
     \item[Diversity] revolves around producing a diverse set of counterfactuals for each input.
     When a user is presented with multiple diverse counterfactuals, more information about the classifier under consideration will consequently be conveyed and increase the likelihood of finding valuable explanations~\cite{Rodriguez2021}.
@@ -1207,8 +1195,8 @@ In the following, we will also discuss such quantities.
 % characteristics of images, or other issues.
 % Then describe what has been done on images. 
 
-This section describes some of the quantitative metrics that have been used to evaluate counterfactual methods proposed within the image domain.
-Although not all metrics fit perfectly into the properties listed above, we describe them in the context of such properties to give an idea of those that can be evaluated by existing metrics and those that still cannot. 
+This section describes quantitative metrics that have been used to evaluate counterfactual methods proposed within the image domain.
+Although not all metrics fit perfectly into the properties listed above, we describe them in the context of such properties to give an overview of which properties that can be evaluated by existing metrics.
 
 \paragraph{Validity.}
 As mentioned, the proportion of generated counterfactuals that successfully change the predicted class, \ie, the validity or target-class validity as denoted in \paperref{pap:evaluation}, is straight forward to quantify.
@@ -1236,7 +1224,7 @@ Although sparsity is not reported within the image domain, \eg, the $L1$ metric 
 \paragraph{Proximity.}
 For proximity, the ``distance'' from an input to a generated counterfactual needs to be quantified.
 \citet{Mothilal2020} measure proximity by the average $L1$ distance normalized by the median absolute deviation of each feature (defined in Equation \eqref{eq:MAD}) from the input to the counterfactual. 
-Notably, this relates closely to sparsity, which makes it unclear, what the mathematical distinction between the two is.
+Notably, this relates closely to sparsity, which makes the mathematical distinction between the two unclear.
 \cite{Mothilal2020} highlights both sparsity and proximity as being important, but quantifies only sparsity.
 
 As was the case for sparsity, quantifying proximity may seem trivial, but using, \eg, the $L2$ norm to measure proximity often falls short.
@@ -1245,7 +1233,7 @@ In Figure \ref{fig:l2-example}, an image of a seven (left) is altered in two way
 In the center image, the digit is rotated seven degrees, and in the right image, the tip of the top line has been cut off.
 Perceptually, the center image is arguably more proximal to the input than the right image.
 However, according to the $L2$ distance, the right image is closer.
-As such, using simple norms like the $L2$ norm to quantify proximity can be inadequate.
+As such, using simple norms to quantify proximity can be inadequate.
 We hypothesize that similar observations can be done for other high-dimensional domains.
 
 \begin{figure}
@@ -1282,7 +1270,7 @@ However, there does not seem to exist any established metrics for quantifying di
 \cite{Mothilal2020} quantifies diversity as the average distance among pairs of counterfactuals generated for the same input. 
 As for sparsity, the distance used is the $L1$ distance normalized by the median average deviation.
 As argued above, metrics based on the $L1$ norm make less sense for, \eg, images.
-Furthermore, we are not aware of any other work that reports this metric.
+We are also not aware of any other work that reports this metric.
 
 It should be mentioned that for text, the self-BLEU score~\cite{self-bleu} has also been proposed to quantify diversity between counterfactual examples~\cite{Wu2021}.
 However, the score does not extend naturally to the image domain and is not covered further here.
@@ -1362,7 +1350,7 @@ Due to the lack of well-established metrics, \paperref{pap:evaluation} generaliz
 However, it should be stressed that for future work, it is important to quantify such properties.
 % In our paper, we focus on understanding the behavior of existing metrics, which make us generalize the desired properties to minimal and realistic changes for simplicity. 
 
-It may be clear to the reader that quantitatively evaluating counterfactual explanations is not a solved problem.
+It may be clear to the reader that quantitatively evaluating counterfactual examples is not a solved problem.
 Especially for visual counterfactual examples, quantitative metrics are limited, and knowledge about what properties metrics do capture and do not capture is even more scarce.
 We believe that a thorough understanding of the behavior of existing metrics is the best first step before designing new metrics to establish a best practice for evaluating visual counterfactual examples.
 This insight is what motivates our work in \paperref{pap:evaluation}, which, through analysis and experimental evaluations, takes a step towards improving the quantitative evaluations of visual counterfactual examples.
@@ -1391,10 +1379,10 @@ As we described, shuffling the relationships between inputs and counterfactuals 
 In turn, we conclude that FID should be considered along with other metrics, which do not have this issue.
 Similarly, $\operatorname{TCV}$ captures how effective a counterfactual method is in changing the predicted class. 
 % As discussed in \paperref{pap:evaluation}, the metric provide valuable insights into how effectively methods produce counterfactuals.
-On the other hand, the metric does \emph{not} convey any information on the quality of the counterfactuals as such.
-For example, adversarial attacks may get a high (good) $\operatorname{TCV}$, but convey little or no information to the end-user, as such attacks are typically not interpretable.
+On the other hand, the metric does \emph{not} convey any information on the image quality.
+Adversarial attacks may, \eg, get a high (good) $\operatorname{TCV}$ but convey little or no information to the end-user, as such attacks are typically not interpretable.
 Consequently, $\operatorname{TCV}$ also needs to be considered along with other metrics that do not have this drawback.
-Overall, we find that no metric expresses all desirable properties, and thus they should be used in combination.
+Overall, we find that no metric expresses all desirable properties. In turn, they should be used in combination.
 
 In \paperref{pap:evaluation}, we also point out that reporting the normalization used for evaluating counterfactuals is crucial for comparing methods across publications.
 In the existing literature, we observe that the $\operatorname{IM1}$ and $\operatorname{IM2}$ metrics are reported for two different ranges of normalization in \cite{Mahajan2019} and \cite{VanLooveren2019}, which leads to incomparable results.
@@ -1418,8 +1406,8 @@ For example, we examine extreme cases where counterfactuals that consist of tiny
 Similarly, for the MNIST dataset, FID yields a lower (better) score for adversarial-like changes than more realistically looking counterfactual examples.
 
 Comparing our experiments across an increasing data complexity reveals that the $\operatorname{IM1}$ and the $\operatorname{IM2}$ scores across different counterfactual methods seem to approach identical values.
-That is, when complexity increases, the difference between scores decreases.
-As such, we argue that such metrics are most valuable for less complex data.
+That is, when complexity increases, the difference between methods decreases.
+In turn, such metrics are arguably most valuable for less complex data.
 
 \paragraph{New metrics.}
 From our analysis and experiments, we found that the evaluated metrics for quantifying realistic changes can be fooled by adversarial-like examples.
@@ -1476,7 +1464,7 @@ As such, we are close to, but not at the limit of, the data complexity of relate
 % We hypothesize that the authors transform counterfactuals into heatmaps because the counterfactuals do not look realistic as-is.
 
 Finally, a conclusive strategy for evaluating visual counterfactual examples may also seem to be missing in \paperref{pap:evaluation}. 
-However, as should be clear by now, metrics are still missing in terms of giving a complete evaluation of the five properties described above.
+However, metrics are still missing in terms of giving a complete evaluation of the five properties described above.
 As such, presenting a conclusive strategy could potentially harm further development by ignoring the missing aspects. 
 In turn, we refrain from giving such a strategy. 
 
@@ -1487,10 +1475,10 @@ In turn, we refrain from giving such a strategy.
 %
     
 \chapter{Conclusion} 
-Having summarized the four included papers during the previous three chapters, we conclude Part 1 of this thesis in this chapter.
-We discuss our work in terms of our main hypothesis and the associated research questions in Section \ref{sec:conclusion-discussion}. 
-Then, we conclude our contributions in Section \ref{sec:conclusion-conclusion}, before
-describing promising future work in Section \ref{sec:conclusion-future-work}. 
+Having summarized the four included papers during the previous three chapters, we conclude Part \ref{part:overview} of this thesis in this chapter.
+In Section \ref{sec:conclusion-discussion}, our work is discussed in terms of the main hypothesis and the associated research questions. 
+Section \ref{sec:conclusion-conclusion} concludes our contributions and Section \ref{sec:conclusion-future-work}. 
+presents promising future work. 
 
 \section{Discussion}\label{sec:conclusion-discussion}
 % 1.5 page on how presented work relate to our research questions and the main hypothesis in general.
@@ -1511,12 +1499,12 @@ It constitutes a direction of future work to derive a proper training mechanism 
 In Chapter \ref{chap:ecinn-main}, we presented ECINN, which addresses our second research question; how can generative models be used to explain neural networks?
 ECINN utilizes the generative capacities of conditional Normalizing Flows to generate counterfactual examples. 
 While related methods that use generative models typically use the generative models as external image generators that produce more realistically looking counterfactuals, ECINN directly utilizes the generative capabilities of the classifier at hand. %, which can both be used for classification and conditional sampling.
-The method represents a new direction of research where a generative model is \emph{not} used as an external generator but is an internal part of the classification network.
-We hypothesize that such a close relationship between the classifier and the generator may lead to counterfactual examples that more closely reflect the actual behavior of the classifier. 
+The method represents a new direction of research where generative models are \emph{not} used as an external generators but internal parts of the classification networks.
+We hypothesize that such a close relationship between the classifier and the generator can lead to counterfactuals that closely reflect the actual behavior of the classifiers. 
 
 In Chapter \ref{chap:evaluation}, we considered the third research question; how can we best evaluate explanations?
 We provide insights into what properties existing metrics for evaluating visual counterfactual examples capture and further introduce two new metrics.  
-The discussion in Chapter \ref{chap:evaluation} further establishes that the suite of metrics for evaluating visual counterfactual explanations is still not complete.
+The discussion in Chapter \ref{chap:evaluation} further establishes that the suite of metrics for evaluating visual counterfactual examples is still not complete.
 We believe that the contributions of \paperref{pap:evaluation} constitute an important steppingstone towards better evaluation metrics for visual counterfactual methods.
 
 Despite not being the main intention of \paperref{pap:evaluation}, the paper presents experiments which indicate that ECINN, as a representative of methods that are based on generative models, quantitatively produce better counterfactual examples than representatives of iterative methods. 
@@ -1542,7 +1530,7 @@ Below, we outline the main contributions of each paper.
 With \paperref{pap:svd}, which was published as a Spotlight paper at NeurIPS, we introduced FastH, a novel GPU-friendly algorithm for evaluating products of Householder matrices fast.
 The algorithm enjoys the fast asymptotic time complexity of a previously proposed sequential algorithm but with less sequential work.
 The algorithm is up to $27\times$ faster than the sequential algorithm.
-With FastH, it is possible to parameterize weights of neural networks in their SVD efficiently.
+With FastH, it is possible to parametrize weights of neural networks in their SVD efficiently.
 Such parametrization allows efficient computations of, \eg, the matrix determinant, the matrix inverse, and spectral normalization, all computations that are used in generative modelling. 
 As FastH can be plugged directly into the conditional Normalizing Flows used by our method ECINN, it can potentially improve the explanations of ECINN further downstream.
 
@@ -1578,36 +1566,35 @@ Perhaps the most obvious directions of future work is to utilize the efficient c
 Improvements can be done in terms of more stable training, but more importantly in terms of scaling up network architectures or datasets.
 With a larger scale, one would expect to see higher performances. 
 
-At the time of writing, we further have an improvement of the FastH algorithm, which maintains the asymptotic running time $O(d^2m)$, but improves the number of sequential operations from $O(d/t + t)$ to $O(d/t + \log t)$.
-Informally, we can extend the $WY$ decomposition, which is central for FastH, to make it possible to compute each group product $G_j=I-W_jY_j^\intercal$ through a tree of computations, where products in each level of the tree can be computed in parallel.  
+At the time of writing, we have an improvement of the FastH algorithm, which maintains the asymptotic running time, but improves the number of sequential operations from $O(d/t + t)$ to $O(d/t + \log t)$.
+Informally, we can extend the $WY$ decomposition to make it possible to compute each group product $G_j=I-W_jY_j^\intercal$ through a tree of computations, where products in each level of the tree can be computed in parallel.  
 We leave it to future work to benchmark the new algorithm.
 
 With FastFID, we find the most interesting direction of research to be the investigation of how well FID works as a training loss. 
 We have done some initial experiments on GANs, but scaling such experiments to other types of generative models still remains an open problem of high potential. 
 
-\paragraph{Counterfactual Explanations.}
-With ECINN, we have proposed the first method to specifically consider generative models as an internal part of the classification network.
-We believe that this approach has great potential and constitute the beginning of a new line of research. 
+\paragraph{Counterfactual Examples.}
+With ECINN, we have proposed the first method that considers generative models as an internal part of the classification network.
+We believe that this approach has potential and constitute the beginning of a new line of research. 
 For example, VAEs and GANs also enable meaningful interpolations through latent spaces.
-In turn, such models could perhaps be integrate with classification networks to produce more trustworthy methods for producing counterfactual examples. 
+In turn, such models could perhaps be integrated with classification networks to produce more trustworthy methods for producing counterfactual examples. 
 
 Another line of research that ECINN opens is of a more theoretical character.
 Due to the characteristics of conditional Normalizing Flows, it may be possible to prove additional properties of ECINN.
 For example, we hypothesize that similar guarantees as to those of \cite{flowcounterfactuals}, where generated counterfactual examples are guaranteed to approximately stay on the data manifold, are also possible to produce for ECINN.
 
-\paragraph{Evaluating Counterfactual Examples}
+\paragraph{Evaluating Counterfactual Examples.}
 % We note that in \paperref{pap:evaluation}, we focus on minimal and necessary changes that are realistic and not the five properties highlighted in this thesis.
 % The focus has been changed in this thesis to better convey the fact, that although we evaluate existing metrics and even propose two new metrics, there are still open questions left. 
 % Therefor, we here devote some space to promising directions of future research. 
-As diversity, sparsity and proximity are largely left unquantified, they represent open questions, which is of high importance for the field of counterfactual examples.
-Using deep neural networks with strong representational power to quantify, \eg, proximity, pose a promising direction of research.
+As diversity, sparsity, and proximity are largely left unquantified, they represent open problems, that are essential to the development of counterfactual examples.
+Using deep neural networks with strong representational power to quantify, \eg, proximity, constitute a promising direction of research to solve such problem.
 If a well-trained latent space model like a Normalizing Flow~\cite{glow} or ``Bootstrap Your Own Latent''~\cite{byol} is used to embed images into a more ``meaningful'' latent space, it may be possible to quantify properties like sparsity and proximity in a more semantically meaningful way.
 % In a similar vein as \cite{flowcounterfactuals}, it can even be possible in some cases to prove theoretical guarantees about such properties. 
 
-As hinted at, a general benchmark for counterfactual methods is also needed to ensure proper progress within the field of counterfactual examples. 
+A general benchmark for counterfactual methods is also needed to ensure proper progress within the field of counterfactual examples. 
 One solution to this problem could be to aggregate scores from different metrics into one number, which captures all the mentioned properties.
-If such a benchmark is to be proposed, it is critical that all desired properties of counterfactual examples are captured.
-For now, we encourage researchers to report all established metrics in order to give as complete a picture of a method's performance as possible.
+Until such an aggregation function exists, we encourage researchers to report all established metrics in order to give the most complete picture of a method's performance possible.
 
 This concludes Part \ref{part:overview} of this thesis.
 Hopefully, it has been an enjoyable and comprehensible overview of the four papers that follow.
@@ -1686,7 +1673,7 @@ The remainder of this thesis consists of the four papers and references in the v
 % Explanability of neural networks is essential for their adaption to the real world.
 % In this thesis, we provide a new method for generating counterfactuals from invertible neural networks. 
 % The method outperform established methods and generates realistic counterfactuals.
-% We further propose to parameterize NN weights in their SVD, to allow efficient inversion, matrix exponential, etc.
+% We further propose to parametrize NN weights in their SVD, to allow efficient inversion, matrix exponential, etc.
 % This will arguably improve INNs and further down stream improve ECINN.
 
 % For the field of counterfactual explanations to improve, it is essential to have proper metrics.
